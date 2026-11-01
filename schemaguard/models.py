@@ -187,31 +187,60 @@ class ContractResult:
         return self.row_count_post - self.row_count_pre
 
 
+class InvariantStatus(str, Enum):
+    """Outcome of a data invariant evaluation."""
+
+    PASS = "PASS"
+    FAIL = "FAIL"
+    ERROR = "ERROR"
+
+
 @dataclass(frozen=True)
 class InvariantResult:
     """Outcome of evaluating a single SQL invariant assertion.
 
-    An *invariant* is a SQL expression expected to evaluate to a truthy value
-    (non-zero, non-NULL) after the migration, e.g.
-    ``SELECT COUNT(*) = 0 FROM orders WHERE total < 0``.
+    An invariant is a read-only query that checks for bad or violating data.
+    Rule: The query must return ZERO rows to PASS.
 
     Attributes:
-        invariant_name: Unique identifier for the invariant.
-        sql:            The SQL expression evaluated in the sandbox.
-        status:         Whether the invariant held, was violated, or errored.
-        result_value:   The raw value returned by SQLite.
-        error_message:  Populated only when ``status`` is ``ERROR``.
+        name:                 Unique name/title for the invariant.
+        sql:                  The SQL assertion query evaluated in the sandbox.
+        status:               PASS (0 violating rows), FAIL (>= 1 rows), or ERROR.
+        violating_rows_count: Number of rows returned violating the invariant.
+        error_message:        Populated only when status is ERROR.
+        execution_time_ms:    Wall-clock query execution time in milliseconds.
+        sample_violations:    Sample of violating rows (as column-value mappings).
+        invariant_name:       Backward-compatibility alias for name.
+        result_value:         Backward-compatibility alias for violating_rows_count.
     """
 
-    invariant_name: str
-    sql: str
-    status: CheckStatus
-    result_value: Any = None
+    name: str = ""
+    sql: str = ""
+    status: InvariantStatus | CheckStatus | str = InvariantStatus.PASS
+    violating_rows_count: int = 0
     error_message: str = ""
+    execution_time_ms: float = 0.0
+    sample_violations: tuple[dict[str, Any], ...] = field(default_factory=tuple)
+    invariant_name: str = ""
+    result_value: Any = None
+
+    def __post_init__(self) -> None:
+        """Synchronize primary and alias fields for full compatibility."""
+        n = self.name or self.invariant_name
+        object.__setattr__(self, "name", n)
+        object.__setattr__(self, "invariant_name", n)
+
+        if self.result_value is None and self.violating_rows_count:
+            object.__setattr__(self, "result_value", self.violating_rows_count)
+        elif self.result_value is not None and not self.violating_rows_count and isinstance(self.result_value, int):
+            object.__setattr__(self, "violating_rows_count", self.result_value)
 
     def held(self) -> bool:
-        """Return ``True`` if the invariant evaluated to a truthy value."""
-        return self.status == CheckStatus.PASSED
+        """Return ``True`` if the invariant passed (zero violating rows)."""
+        return (
+            self.status in (InvariantStatus.PASS, CheckStatus.PASSED, "PASS", "passed")
+            and self.violating_rows_count == 0
+        )
 
 
 @dataclass(frozen=True)
@@ -219,15 +248,21 @@ class SchemaDiffResult:
     """Structural diff between the pre- and post-migration schema.
 
     Attributes:
-        tables_added:    Tables present **only** after migration.
-        tables_removed:  Tables present **only** before migration.
-        tables_modified: Tables present in both but with structural changes.
-        columns_added:   Mapping of ``table → [column_name, …]`` for new cols.
-        columns_removed: Mapping of ``table → [column_name, …]`` for dropped cols.
-        columns_modified:Mapping of ``table → {col: (old_type, new_type)}`` for type changes.
-        indexes_added:   Index names added by the migration.
-        indexes_removed: Index names removed by the migration.
-        row_count_deltas:Mapping of ``table → (pre_count, post_count)``.
+        tables_added:           Tables present **only** after migration.
+        tables_removed:         Tables present **only** before migration.
+        tables_modified:        Tables present in both but with structural changes.
+        columns_added:          Mapping of ``table → [column_name, …]`` for new cols.
+        columns_removed:        Mapping of ``table → [column_name, …]`` for dropped cols.
+        columns_modified:       Mapping of ``table → {col: (old_type, new_type)}`` for type changes.
+        indexes_added:          Index names added by the migration.
+        indexes_removed:        Index names removed by the migration.
+        row_count_deltas:       Mapping of ``table → (pre_count, post_count)``.
+        primary_keys_modified:  Mapping of ``table → (pre_pks, post_pks)``.
+        foreign_keys_added:     Mapping of ``table → [fk_descriptions]``.
+        foreign_keys_removed:   Mapping of ``table → [fk_descriptions]``.
+        foreign_keys_modified:  Mapping of ``table → [fk_descriptions]``.
+        indexes_modified:       Mapping of ``table → [index_names]``.
+        column_details_altered: Mapping of ``table → {col: {attr: (old, new)}}``.
     """
 
     tables_added: tuple[str, ...] = field(default_factory=tuple)
@@ -239,10 +274,18 @@ class SchemaDiffResult:
     indexes_added: tuple[str, ...] = field(default_factory=tuple)
     indexes_removed: tuple[str, ...] = field(default_factory=tuple)
     row_count_deltas: dict[str, tuple[int, int]] = field(default_factory=dict)
+    primary_keys_modified: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = field(default_factory=dict)
+    foreign_keys_added: dict[str, list[str]] = field(default_factory=dict)
+    foreign_keys_removed: dict[str, list[str]] = field(default_factory=dict)
+    foreign_keys_modified: dict[str, list[str]] = field(default_factory=dict)
+    indexes_modified: dict[str, list[str]] = field(default_factory=dict)
+    column_details_altered: dict[str, dict[str, dict[str, tuple[Any, Any]]]] = field(default_factory=dict)
 
     def has_destructive_changes(self) -> bool:
-        """Return ``True`` if any columns or tables were removed."""
-        return bool(self.tables_removed or self.columns_removed)
+        """Return ``True`` if any columns or tables were removed or rows dropped unexpectedly."""
+        has_dropped_objects = bool(self.tables_removed or self.columns_removed)
+        has_row_drops = any(post < pre for pre, post in self.row_count_deltas.values())
+        return has_dropped_objects or has_row_drops
 
     def is_clean(self) -> bool:
         """Return ``True`` when no structural changes were detected at all."""
@@ -252,6 +295,8 @@ class SchemaDiffResult:
             self.tables_modified,
             self.indexes_added,
             self.indexes_removed,
+            self.foreign_keys_added,
+            self.foreign_keys_removed,
         ])
 
 
@@ -305,7 +350,10 @@ class MigrationResult:
             r.status in (ContractStatus.PASS, CheckStatus.PASSED, "PASS", "passed")
             for r in self.contract_results
         )
-        invariants_ok = all(r.status == CheckStatus.PASSED for r in self.invariant_results)
+        invariants_ok = all(
+            r.status in (InvariantStatus.PASS, CheckStatus.PASSED, "PASS", "passed") and r.held()
+            for r in self.invariant_results
+        )
         findings_ok = not any(f.is_blocking() for f in self.schema_findings)
         return contracts_ok and invariants_ok and findings_ok
 
@@ -322,5 +370,8 @@ class MigrationResult:
 
     def failed_invariants(self) -> list[InvariantResult]:
         """Return only the invariants that did not hold."""
-        return [r for r in self.invariant_results if r.status != CheckStatus.PASSED]
+        return [
+            r for r in self.invariant_results
+            if r.status not in (InvariantStatus.PASS, CheckStatus.PASSED, "PASS", "passed") or not r.held()
+        ]
 
