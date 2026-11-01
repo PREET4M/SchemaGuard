@@ -1,0 +1,311 @@
+/* ==========================================================================
+   SchemaGuard — Main UI Stylesheet
+   Clean, restrained, developer-grade aesthetic.
+   Off-white warm background, dark typography, translucent card containers,
+   subtle borders, clear status badges, and strict reduced-motion respect.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Root Color Variables & Tokens
+   -------------------------------------------------------------------------- */
+:root {
+  --sg-bg: #F8F9FA;
+  --sg-card-bg: rgba(255, 255, 255, 0.92);
+  --sg-card-border: #E2E8F0;
+  --sg-border-subtle: #F1F5F9;
+  
+  --sg-text-primary: #0F172A;
+  --sg-text-secondary: #334155;
+  --sg-text-muted: #64748B;
+  
+  --sg-primary: #2563EB;
+  --sg-primary-dark: #1D4ED8;
+  --sg-primary-light: #EFF6FF;
+  
+  --sg-success: #059669;
+  --sg-success-bg: #ECFDF5;
+  --sg-success-border: #A7F3D0;
+  
+  --sg-warning: #D97706;
+  --sg-warning-bg: #FFFBEB;
+  --sg-warning-border: #FDE68A;
+  
+  --sg-danger: #DC2626;
+  --sg-danger-bg: #FEF2F2;
+  --sg-danger-border: #FECACA;
+  
+  --sg-info: #0284C7;
+  --sg-info-bg: #F0F9FF;
+  --sg-info-border: #BAE6FD;
+  
+  --sg-neutral: #6B7280;
+  --sg-neutral-bg: #F3F4F6;
+  --sg-neutral-border: #E5E7EB;
+
+  --sg-radius-sm: 4px;
+  --sg-radius-md: 8px;
+  --sg-radius-lg: 12px;
+  --sg-radius-pill: 9999px;
+
+  --sg-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --sg-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Base Streamlit Overrides
+   -------------------------------------------------------------------------- */
+.stApp {
+  background-color: var(--sg-bg);
+  color: var(--sg-text-primary);
+  font-family: var(--sg-font-sans);
+}
+
+/* Subtle headers */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--sg-text-primary);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+/* Header container styling */
+.sg-hero-header {
+  padding: 1.25rem 0 0.75rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--sg-card-border);
+}
+
+.sg-hero-title {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--sg-text-primary);
+  margin-bottom: 0.35rem;
+  letter-spacing: -0.02em;
+}
+
+.sg-hero-subtitle {
+  font-size: 1.05rem;
+  color: var(--sg-text-secondary);
+  line-height: 1.45;
+  margin-bottom: 0.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Translucent Card Containers
+   -------------------------------------------------------------------------- */
+.sg-card {
+  background: var(--sg-card-bg);
+  border: 1px solid var(--sg-card-border);
+  border-radius: var(--sg-radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.sg-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--sg-border-subtle);
+  padding-bottom: 0.65rem;
+  margin-bottom: 0.85rem;
+}
+
+.sg-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--sg-text-primary);
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Pill Badges & Status Tags
+   -------------------------------------------------------------------------- */
+.sg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--sg-radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+/* Severity badge variants */
+.sg-badge-critical {
+  background: var(--sg-danger-bg);
+  color: var(--sg-danger);
+  border: 1px solid var(--sg-danger-border);
+}
+
+.sg-badge-high {
+  background: #FFF1F2;
+  color: #BE123C;
+  border: 1px solid #FECDD3;
+}
+
+.sg-badge-moderate {
+  background: var(--sg-warning-bg);
+  color: var(--sg-warning);
+  border: 1px solid var(--sg-warning-border);
+}
+
+.sg-badge-low {
+  background: var(--sg-success-bg);
+  color: var(--sg-success);
+  border: 1px solid var(--sg-success-border);
+}
+
+.sg-badge-info {
+  background: var(--sg-info-bg);
+  color: var(--sg-info);
+  border: 1px solid var(--sg-info-border);
+}
+
+.sg-badge-neutral {
+  background: var(--sg-neutral-bg);
+  color: var(--sg-neutral);
+  border: 1px solid var(--sg-neutral-border);
+}
+
+/* --------------------------------------------------------------------------
+   Diff Tags (+, -, ~)
+   -------------------------------------------------------------------------- */
+.sg-diff-add {
+  background: var(--sg-success-bg);
+  color: var(--sg-success);
+  border: 1px solid var(--sg-success-border);
+  padding: 2px 6px;
+  border-radius: var(--sg-radius-sm);
+  font-family: var(--sg-font-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.sg-diff-remove {
+  background: var(--sg-danger-bg);
+  color: var(--sg-danger);
+  border: 1px solid var(--sg-danger-border);
+  padding: 2px 6px;
+  border-radius: var(--sg-radius-sm);
+  font-family: var(--sg-font-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.sg-diff-modify {
+  background: var(--sg-warning-bg);
+  color: var(--sg-warning);
+  border: 1px solid var(--sg-warning-border);
+  padding: 2px 6px;
+  border-radius: var(--sg-radius-sm);
+  font-family: var(--sg-font-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Metric & Stat Tiles
+   -------------------------------------------------------------------------- */
+.sg-stat-tile {
+  background: #FFFFFF;
+  border: 1px solid var(--sg-card-border);
+  border-radius: var(--sg-radius-md);
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.sg-stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--sg-text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 0.25rem;
+}
+
+.sg-stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--sg-text-primary);
+  font-family: var(--sg-font-mono);
+}
+
+/* --------------------------------------------------------------------------
+   Code & Mono Blocks
+   -------------------------------------------------------------------------- */
+.sg-code-inline {
+  font-family: var(--sg-font-mono);
+  font-size: 0.85rem;
+  background: #F1F5F9;
+  color: #1E293B;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  border: 1px solid #E2E8F0;
+}
+
+.sg-code-box {
+  font-family: var(--sg-font-mono);
+  font-size: 0.85rem;
+  background: #1E293B;
+  color: #F8FAFC;
+  padding: 0.85rem;
+  border-radius: var(--sg-radius-md);
+  overflow-x: auto;
+  line-height: 1.5;
+  margin: 0.5rem 0;
+}
+
+/* --------------------------------------------------------------------------
+   Callout Banners
+   -------------------------------------------------------------------------- */
+.sg-callout {
+  border-left: 4px solid;
+  border-radius: var(--sg-radius-sm);
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+
+.sg-callout-info {
+  background: var(--sg-info-bg);
+  border-color: var(--sg-info);
+  color: #0369A1;
+}
+
+.sg-callout-warning {
+  background: var(--sg-warning-bg);
+  border-color: var(--sg-warning);
+  color: #B45309;
+}
+
+.sg-callout-danger {
+  background: var(--sg-danger-bg);
+  border-color: var(--sg-danger);
+  color: #B91C1C;
+}
+
+.sg-callout-success {
+  background: var(--sg-success-bg);
+  border-color: var(--sg-success);
+  color: #047857;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced Motion
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

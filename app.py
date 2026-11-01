@@ -2,7 +2,7 @@
 app.py
 ------
 SchemaGuard — Migration Rehearsal Engine
-Entry point for the Streamlit application.
+Streamlit Web Application Entry Point.
 
 Run with:
     streamlit run app.py
@@ -10,12 +10,17 @@ Run with:
 
 from __future__ import annotations
 
+from pathlib import Path
 import streamlit as st
 
 from schemaguard.config import APP_ICON, APP_LAYOUT, APP_TITLE
+from ui.pages.overview import render_overview_page
+from ui.pages.rehearsal import render_rehearsal_page
+from ui.pages.results import render_results_page
+from ui.pages.settings import render_settings_page
 
 # ---------------------------------------------------------------------------
-# Page configuration — must be the first Streamlit call in the script
+# Streamlit page configuration (must precede any other st commands)
 # ---------------------------------------------------------------------------
 
 st.set_page_config(
@@ -26,54 +31,104 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------------------------
-# Header
+# Load Custom Stylesheet
 # ---------------------------------------------------------------------------
 
-st.title(f"{APP_ICON} {APP_TITLE}")
-st.caption(
-    "Rehearse SQLite migrations in an isolated sandbox before touching production data."
-)
-st.divider()
+CSS_PATH = Path("ui/styles/main.css")
+if CSS_PATH.exists():
+    css_content = CSS_PATH.read_text(encoding="utf-8")
+    st.markdown(f"<style>{css_content}</style>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------------
-# Landing content
+# Session State Management
 # ---------------------------------------------------------------------------
 
-col_left, col_right = st.columns([2, 1])
+PAGES = ["Overview", "Rehearsal", "Results", "Settings"]
 
-with col_left:
+if "active_page" not in st.session_state:
+    st.session_state["active_page"] = "Overview"
+
+# ---------------------------------------------------------------------------
+# Sidebar Navigation & Branding
+# ---------------------------------------------------------------------------
+
+with st.sidebar:
     st.markdown(
         """
-        ### What SchemaGuard does
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
+            <span style="font-size:1.6rem;line-height:1;">🛡️</span>
+            <span style="font-size:1.25rem;font-weight:700;color:#0F172A;letter-spacing:-0.02em;">SchemaGuard</span>
+        </div>
+        <div style="font-size:0.75rem;font-weight:600;color:#2563EB;background:#EFF6FF;border:1px solid #BFDBFE;padding:2px 8px;border-radius:9999px;display:inline-block;margin-bottom:1rem;">
+            LOCAL-FIRST • SQLITE
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-        1. **Copies** your database into a throw-away sandbox — the original is never touched.
-        2. **Applies** your proposed migration SQL to the sandbox copy.
-        3. **Replays** your application query contracts and checks they still work.
-        4. **Evaluates** SQL invariants (e.g. *no negative totals*, *no orphaned rows*).
-        5. **Diffs** the pre- and post-migration schema and row counts.
-        6. **Generates** a deterministic, evidence-backed report you can attach to a PR.
+    current_idx = PAGES.index(st.session_state["active_page"]) if st.session_state["active_page"] in PAGES else 0
 
-        > ⚠️ SchemaGuard is a rehearsal tool. It reduces risk but **cannot guarantee safety**.
-        > Always review the generated report and test in a staging environment.
+    selected_page = st.radio(
+        "Navigation",
+        options=PAGES,
+        index=current_idx,
+        label_visibility="collapsed",
+    )
+
+    if selected_page != st.session_state["active_page"]:
+        st.session_state["active_page"] = selected_page
+        st.rerun()
+
+    st.markdown("<div style='margin-top:1.5rem;'></div>", unsafe_allow_html=True)
+
+    # Rehearsal session status widget
+    report = st.session_state.get("rehearsal_report")
+    if report is not None:
+        st.markdown(
+            f"""
+            <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:10px;margin-bottom:1rem;">
+                <div style="font-size:0.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">
+                    Latest Rehearsal
+                </div>
+                <div style="font-size:0.85rem;font-weight:600;color:#0F172A;margin-bottom:2px;">
+                    {report.severity.value.upper()}
+                </div>
+                <div style="font-size:0.75rem;color:#475569;line-height:1.3;">
+                    {report.label}
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        if st.button("Clear Results", use_container_width=True):
+            st.session_state.pop("rehearsal_report", None)
+            st.session_state["active_page"] = "Overview"
+            st.rerun()
+
+    st.markdown(
         """
-    )
-
-with col_right:
-    st.info(
-        "**Get started**\n\n"
-        "Use the sidebar to navigate to the **Rehearsal** page, upload your database "
-        "and migration SQL, then run the checks.",
-        icon="👈",
+        <div style="font-size:0.75rem;color:#94A3B8;line-height:1.4;margin-top:2rem;">
+            <strong>Never touches original DB.</strong><br>
+            All rehearsals run exclusively inside temporary SQLite sandboxes.
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 # ---------------------------------------------------------------------------
-# Quick-stats placeholder (populated once a rehearsal has run)
+# Main Page Router
 # ---------------------------------------------------------------------------
 
-st.divider()
-st.subheader("Recent Runs")
-st.markdown(
-    "_No rehearsals have been run yet in this session. "
-    "Results will appear here after your first run._"
-)
+active = st.session_state["active_page"]
 
+if active == "Overview":
+    render_overview_page()
+elif active == "Rehearsal":
+    render_rehearsal_page()
+elif active == "Results":
+    render_results_page()
+elif active == "Settings":
+    render_settings_page()
+else:
+    render_overview_page()
