@@ -1,7 +1,7 @@
 """
 ui/pages/rehearsal.py
 ---------------------
-Migration rehearsal setup and execution page.
+Migration rehearsal workspace — professional developer studio.
 
 Enables developers to:
   1. Select the database source (bundled synthetic demo DB or custom upload).
@@ -49,7 +49,7 @@ def _split_queries(sql_text: str) -> list[str]:
     """Split multi-query text by semicolons while ignoring empty lines and pure comments."""
     statements: list[str] = []
     current: list[str] = []
-    
+
     for line in sql_text.splitlines():
         trimmed = line.strip()
         if not trimmed or trimmed.startswith("--"):
@@ -60,20 +60,21 @@ def _split_queries(sql_text: str) -> list[str]:
             if full_stmt:
                 statements.append(full_stmt)
             current = []
-    
+
     if current:
         trailing = "\n".join(current).strip()
         if trailing:
             statements.append(trailing)
-            
+
     return statements
 
 
 def render_rehearsal_page() -> None:
-    """Render the complete migration rehearsal configuration page."""
+    """Render the Apple / Linear inspired migration rehearsal workspace."""
     render_header(
-        title="Rehearse Migration",
+        title="Migration Rehearsal",
         subtitle="Configure the source database copy, migration DDL, query contracts, and domain invariants.",
+        badge_text="ISOLATED ENVIRONMENT",
     )
 
     # Initialize session state defaults if absent
@@ -90,19 +91,27 @@ def render_rehearsal_page() -> None:
     if "invariants_sql" not in st.session_state:
         st.session_state["invariants_sql"] = _read_file_safe(INVARIANTS_DIR / "invariants.sql")
 
-    # If demo scenario was loaded from Overview, show notification
+    # If demo scenario was loaded from Overview, show high-impact notification
     if st.session_state.get("demo_loaded", False):
         scenario_name = st.session_state.get("scenario_name", "Demo Scenario")
         scenario_desc = st.session_state.get("scenario_description", "")
-        success_box(f"Loaded {scenario_name}: {scenario_desc}")
-        # Clear one-time banner
+        success_box(f"<strong>Loaded Preset:</strong> {scenario_name} — {scenario_desc}")
         st.session_state["demo_loaded"] = False
 
     # -----------------------------------------------------------------------
     # Step 1: Database Source Selection
     # -----------------------------------------------------------------------
-    st.markdown("### 1. Source Database")
-    st.caption("SchemaGuard will open this database strictly in read-only mode and copy it to an isolated sandbox.")
+    st.markdown(
+        """
+        <div style="font-size:1.15rem;font-weight:700;color:#F8FAFC;margin-bottom:0.25rem;">
+            1. Source Database Clone
+        </div>
+        <div style="font-size:0.85rem;color:#94A3B8;margin-bottom:0.85rem;">
+            Opened strictly in read-only mode (<code>mode=ro</code>) and backed up to an isolated temporary sandbox.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     db_option = st.radio(
         "Choose database origin:",
@@ -119,21 +128,32 @@ def render_rehearsal_page() -> None:
             error_box(f"Demo database not found at `{DEMO_DB_PATH}`. Please run `python scripts/create_demo_db.py`.")
             return
         source_db_path = DEMO_DB_PATH
-        
-        # Display summary of tables and row counts
+
+        # Display live chip inspection of tables and row counts
         try:
             conn = sqlite3.connect(f"file:{DEMO_DB_PATH.resolve()}?mode=ro", uri=True)
             cur = conn.cursor()
-            tables = [row[0] for row in cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").fetchall()]
-            counts: list[str] = []
+            tables = [
+                row[0]
+                for row in cur.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+                ).fetchall()
+            ]
+            chips_html: list[str] = []
             for t in tables:
                 cnt = cur.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
-                counts.append(f"<code>{t}</code> ({cnt} rows)")
+                chips_html.append(
+                    f'<span style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);'
+                    f'padding:3px 8px;border-radius:6px;font-size:12px;font-family:monospace;color:#E2E8F0;">'
+                    f'{t} <span style="color:#6366F1;font-weight:700;">({cnt})</span></span>'
+                )
             conn.close()
+
             st.markdown(
                 f"""
-                <div style="background:#F1F5F9;border:1px solid #CBD5E1;border-radius:6px;padding:8px 12px;font-size:13px;color:#334155;margin-bottom:1rem;">
-                    <strong>Demo Database Active:</strong> <code>data/demo/ecommerce.db</code> &nbsp;|&nbsp; Tables: {" • ".join(counts)}
+                <div class="sg-card" style="padding:0.85rem 1.15rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+                    <span style="font-size:0.8rem;font-weight:700;color:#A5B4FC;text-transform:uppercase;letter-spacing:0.04em;">Tables & Row Counts:</span>
+                    {" ".join(chips_html)}
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -151,7 +171,7 @@ def render_rehearsal_page() -> None:
             if uploaded_file.size > MAX_UPLOAD_SIZE_BYTES:
                 error_box(f"File size exceeds maximum permitted limit of {MAX_UPLOAD_SIZE_MB} MB.")
                 return
-            
+
             upload_dir = Path(SANDBOX_DIR) / "staging"
             upload_dir.mkdir(parents=True, exist_ok=True)
             staged_path = upload_dir / uploaded_file.name
@@ -159,16 +179,25 @@ def render_rehearsal_page() -> None:
             source_db_path = staged_path
             success_box(f"Uploaded `{uploaded_file.name}` ({round(uploaded_file.size / 1024, 1)} KB) ready for rehearsal.")
         else:
-            info_box("Upload a SQLite database file to begin, or switch back to the bundled Synthetic Demo.")
+            info_box("Upload a SQLite database file to begin, or select the synthetic demo.")
             return
 
-    st.divider()
+    st.markdown("<div style='height:1px;background:rgba(255,255,255,0.08);margin:1.5rem 0;'></div>", unsafe_allow_html=True)
 
     # -----------------------------------------------------------------------
     # Step 2: Migration SQL DDL
     # -----------------------------------------------------------------------
-    st.markdown("### 2. Migration SQL")
-    st.caption("The proposed DDL/DML to rehearse exclusively against the isolated sandbox copy.")
+    st.markdown(
+        """
+        <div style="font-size:1.15rem;font-weight:700;color:#F8FAFC;margin-bottom:0.25rem;">
+            2. Migration SQL Workspace
+        </div>
+        <div style="font-size:0.85rem;color:#94A3B8;margin-bottom:0.85rem;">
+            The proposed DDL/DML to execute exclusively against the isolated sandbox copy.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     preset_col1, preset_col2 = st.columns([1, 2])
     with preset_col1:
@@ -205,32 +234,43 @@ def render_rehearsal_page() -> None:
     migration_sql = st.text_area(
         "Migration SQL Statements:",
         value=st.session_state.get("migration_sql", ""),
-        height=120,
+        height=140,
         help="Multiple statements separated by semicolons are supported.",
     )
     st.session_state["migration_sql"] = migration_sql
 
-    st.divider()
+    st.markdown("<div style='height:1px;background:rgba(255,255,255,0.08);margin:1.5rem 0;'></div>", unsafe_allow_html=True)
 
     # -----------------------------------------------------------------------
     # Step 3: Application Query Contracts & Domain Invariants
     # -----------------------------------------------------------------------
-    st.markdown("### 3. Verification Contracts & Invariants")
-    st.caption("Replayed read-only against the post-migration sandbox to ensure backward compatibility and data integrity.")
+    st.markdown(
+        """
+        <div style="font-size:1.15rem;font-weight:700;color:#F8FAFC;margin-bottom:0.25rem;">
+            3. Verification Contracts & Domain Invariants
+        </div>
+        <div style="font-size:0.85rem;color:#94A3B8;margin-bottom:0.85rem;">
+            Replayed read-only against the post-migration sandbox to verify application compatibility.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     tab_old, tab_new, tab_inv = st.tabs([
         "Production Contracts (OLD_APP)",
         "Upcoming Contracts (NEW_APP)",
-        "Data Invariants (Assertions)",
+        "Business Invariants (Assertions)",
     ])
 
     with tab_old:
         st.markdown(
-            "**OLD_APP Contracts:** Read-only queries executed by currently deployed application code. "
-            "If any of these fail post-migration, SchemaGuard flags an immediate **CRITICAL** risk."
+            "<div style='font-size:0.85rem;color:#94A3B8;margin-bottom:0.5rem;'>"
+            "<strong>OLD_APP Contracts:</strong> Queries currently running in production. "
+            "If any fail post-migration, SchemaGuard flags an immediate <strong>CRITICAL</strong> risk.</div>",
+            unsafe_allow_html=True,
         )
         old_contracts_text = st.text_area(
-            "Old Application SQL Queries (one or more queries):",
+            "Old Application SQL Queries:",
             value=st.session_state.get("old_contracts_sql", ""),
             height=100,
             key="input_old_contracts",
@@ -239,8 +279,10 @@ def render_rehearsal_page() -> None:
 
     with tab_new:
         st.markdown(
-            "**NEW_APP Contracts:** Read-only queries planned for the upcoming application release "
-            "expecting new tables or columns. If these fail, SchemaGuard flags **MODERATE** risk."
+            "<div style='font-size:0.85rem;color:#94A3B8;margin-bottom:0.5rem;'>"
+            "<strong>NEW_APP Contracts:</strong> Queries expected by the upcoming application version. "
+            "If these fail, SchemaGuard flags a <strong>MODERATE</strong> risk.</div>",
+            unsafe_allow_html=True,
         )
         new_contracts_text = st.text_area(
             "New Application SQL Queries:",
@@ -252,38 +294,45 @@ def render_rehearsal_page() -> None:
 
     with tab_inv:
         st.markdown(
-            "**Data Invariants:** SQL queries that search for invalid data or constraint violations. "
-            "**Rule: The query must return 0 violating rows to PASS.** Any returned rows indicate data corruption."
+            "<div style='font-size:0.85rem;color:#94A3B8;margin-bottom:0.5rem;'>"
+            "<strong>Data Invariants:</strong> Assertions that search for corrupted or orphaned records. "
+            "<strong>Rule: Must return 0 violating rows to PASS.</strong> Any returned rows flag violations.</div>",
+            unsafe_allow_html=True,
         )
         invariants_text = st.text_area(
             "Data Invariant Queries (use '-- Invariant Name' before each query):",
             value=st.session_state.get("invariants_sql", ""),
-            height=130,
+            height=120,
             key="input_invariants",
         )
         st.session_state["invariants_sql"] = invariants_text
 
-    st.markdown("<div style='margin-top:1.5rem;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:2rem;'></div>", unsafe_allow_html=True)
 
     # -----------------------------------------------------------------------
-    # Step 4: Rehearsal Trigger
+    # Step 4: Rehearsal Trigger Action Bar
     # -----------------------------------------------------------------------
-    col_btn, col_info = st.columns([1, 2])
+    st.markdown(
+        """
+        <div class="sg-card" style="padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;">
+            <div>
+                <div style="font-weight:700;font-size:1.05rem;color:#F8FAFC;margin-bottom:2px;">
+                    Ready for Rehearsal Execution
+                </div>
+                <div style="font-size:0.82rem;color:#94A3B8;">
+                    Source DB is isolated with zero writes. All tests execute inside a temporary clone.
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    with col_btn:
-        run_clicked = st.button(
-            "🚀 Run Migration Rehearsal",
-            type="primary",
-            use_container_width=True,
-        )
-
-    with col_info:
-        st.markdown(
-            "<div style='font-size:12px;color:#64748B;line-height:1.4;padding-top:4px;'>"
-            "Executes exclusively inside a temporary copy. Source database is never modified. "
-            "Generates comprehensive JSON & Markdown evidence reports.</div>",
-            unsafe_allow_html=True,
-        )
+    run_clicked = st.button(
+        "⚡ Execute Migration Rehearsal",
+        type="primary",
+        use_container_width=True,
+    )
 
     if run_clicked:
         if not source_db_path or not source_db_path.exists():

@@ -1,101 +1,139 @@
 """
 ui/theme.py
 -----------
-Central colour palette, typography constants, and status mappings
-used across all Streamlit pages in SchemaGuard.
+Central visual design system, color tokens, and semantic mappings for SchemaGuard.
 
-Design Philosophy:
-  - Clean, restrained developer interface.
-  - Off-white warm background, dark typography, subtle borders.
-  - Distinct status tags and severity indicators.
-  - Strict absence of misleading claims: LOW severity is labeled
-    "No configured checks failed", never "guaranteed safe".
+Inspired by the design quality of Apple.com, Linear, and Raycast:
+  - Deep atmospheric dark palette (#090A0F, #0D111A, #121722)
+  - Refined translucent glass surfaces with backdrop blur
+  - Vibrant Indigo-Cyan accent gradients
+  - Strict semantic severity indicators (LOW is always labeled
+    "No configured checks failed", never claiming "guaranteed safe")
+  - SF Pro / Inter typography tokens with tabular numerals
 """
 
 from __future__ import annotations
 
 # ---------------------------------------------------------------------------
-# Background & Surface Tokens
+# Background & Atmospheric Canvas Tokens
 # ---------------------------------------------------------------------------
 
-COLOR_BG: str = "#F8F9FA"                   # Off-white warm background
-COLOR_SURFACE: str = "#FFFFFF"              # Pure white card surface
-COLOR_SURFACE_TRANSLUCENT: str = "rgba(255, 255, 255, 0.92)"
-COLOR_CARD_BORDER: str = "#E2E8F0"          # Slate-200 border
-COLOR_BORDER_SUBTLE: str = "#F1F5F9"        # Slate-100 divider
+COLOR_BG_DARKEST: str = "#090A0F"          # Deepest void background
+COLOR_BG: str = "#0D111A"                  # Primary application canvas
+COLOR_BG_ELEVATED: str = "#121722"         # Elevated sections & modules
+
+# ---------------------------------------------------------------------------
+# Glassmorphism & Surface Tokens
+# ---------------------------------------------------------------------------
+
+COLOR_SURFACE_GLASS: str = "rgba(22, 27, 38, 0.70)"      # Primary card glass
+COLOR_SURFACE_GLASS_HOVER: str = "rgba(30, 36, 50, 0.80)"# Hover glass elevation
+COLOR_SURFACE_GLASS_ACTIVE: str = "rgba(38, 46, 64, 0.85)"
+COLOR_SURFACE_SOLID: str = "#161B26"                     # Non-translucent fallback
+
+COLOR_BORDER_GLASS: str = "rgba(255, 255, 255, 0.08)"     # Subtle white border
+COLOR_BORDER_GLASS_HOVER: str = "rgba(255, 255, 255, 0.16)"
+COLOR_BORDER_SUBTLE: str = "rgba(255, 255, 255, 0.05)"
 
 # ---------------------------------------------------------------------------
 # Typography Tokens
 # ---------------------------------------------------------------------------
 
-COLOR_TEXT_PRIMARY: str = "#0F172A"        # Slate-900 — headings and primary text
-COLOR_TEXT_SECONDARY: str = "#334155"      # Slate-700 — body text
-COLOR_TEXT_MUTED: str = "#64748B"          # Slate-500 — captions and labels
+COLOR_TEXT_PRIMARY: str = "#F8FAFC"        # Slate-50 — High-contrast text & titles
+COLOR_TEXT_SECONDARY: str = "#94A3B8"      # Slate-400 — Supporting body copy
+COLOR_TEXT_MUTED: str = "#64748B"          # Slate-500 — Captions, labels & timestamps
 
 # ---------------------------------------------------------------------------
-# Brand & Accent Colours
+# Brand & Accent Tokens (Indigo to Cyan)
 # ---------------------------------------------------------------------------
 
-COLOR_PRIMARY: str = "#2563EB"             # Blue-600 — primary actions / focal points
-COLOR_PRIMARY_DARK: str = "#1D4ED8"        # Blue-700
-COLOR_PRIMARY_LIGHT: str = "#EFF6FF"       # Blue-50
-COLOR_SECONDARY: str = "#4F46E5"           # Indigo-600 — secondary accent
+COLOR_ACCENT_INDIGO: str = "#6366F1"       # Primary brand accent
+COLOR_ACCENT_CYAN: str = "#06B6D4"         # Secondary vibrant accent
+COLOR_ACCENT_BLUE: str = "#3B82F6"         # Tertiary technical accent
 
-COLOR_SUCCESS: str = "#059669"             # Emerald-600 — passed checks / zero violations
-COLOR_SUCCESS_BG: str = "#ECFDF5"
-COLOR_SUCCESS_BORDER: str = "#A7F3D0"
+GRADIENT_PRIMARY: str = "linear-gradient(135deg, #6366F1 0%, #3B82F6 50%, #06B6D4 100%)"
+GRADIENT_HERO_TEXT: str = "linear-gradient(180deg, #FFFFFF 0%, #CBD5E1 100%)"
+GRADIENT_GLASS_CARD: str = "linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%)"
 
-COLOR_WARNING: str = "#D97706"             # Amber-600 — warnings / moderate risk
-COLOR_WARNING_BG: str = "#FFFBEB"
-COLOR_WARNING_BORDER: str = "#FDE68A"
+# Backward-compatibility aliases
+COLOR_PRIMARY: str = "#6366F1"
+COLOR_SECONDARY: str = "#06B6D4"
+COLOR_INFO: str = "#06B6D4"
+COLOR_INFO_BG: str = "rgba(6, 182, 212, 0.12)"
+COLOR_INFO_BORDER: str = "rgba(6, 182, 212, 0.28)"
 
-COLOR_ERROR: str = "#DC2626"               # Red-600 — critical / failures
-COLOR_ERROR_BG: str = "#FEF2F2"
-COLOR_ERROR_BORDER: str = "#FECACA"
+# ---------------------------------------------------------------------------
+# Semantic Colours (Apple / Linear Grade)
+# ---------------------------------------------------------------------------
 
-COLOR_INFO: str = "#0284C7"                # Sky-600 — informational badges
-COLOR_INFO_BG: str = "#F0F9FF"
-COLOR_INFO_BORDER: str = "#BAE6FD"
+COLOR_CRITICAL: str = "#EF4444"            # Red-500
+COLOR_CRITICAL_BG: str = "rgba(239, 68, 68, 0.12)"
+COLOR_CRITICAL_BORDER: str = "rgba(239, 68, 68, 0.30)"
 
-COLOR_NEUTRAL: str = "#6B7280"             # Gray-500 — muted badges
-COLOR_NEUTRAL_BG: str = "#F3F4F6"
-COLOR_NEUTRAL_BORDER: str = "#E5E7EB"
+COLOR_HIGH: str = "#F97316"                # Orange-500
+COLOR_HIGH_BG: str = "rgba(249, 115, 22, 0.12)"
+COLOR_HIGH_BORDER: str = "rgba(249, 115, 22, 0.30)"
+
+COLOR_MODERATE: str = "#EAB308"            # Yellow-500
+COLOR_MODERATE_BG: str = "rgba(234, 179, 8, 0.12)"
+COLOR_MODERATE_BORDER: str = "rgba(234, 179, 8, 0.30)"
+
+COLOR_LOW: str = "#22C55E"                 # Green-500
+COLOR_LOW_BG: str = "rgba(34, 197, 94, 0.12)"
+COLOR_LOW_BORDER: str = "rgba(34, 197, 94, 0.30)"
+
+# Backward-compatibility aliases for existing test suites
+COLOR_SUCCESS: str = COLOR_LOW
+COLOR_SUCCESS_BG: str = COLOR_LOW_BG
+COLOR_SUCCESS_BORDER: str = COLOR_LOW_BORDER
+
+COLOR_WARNING: str = COLOR_MODERATE
+COLOR_WARNING_BG: str = COLOR_MODERATE_BG
+COLOR_WARNING_BORDER: str = COLOR_MODERATE_BORDER
+
+COLOR_ERROR: str = COLOR_CRITICAL
+COLOR_ERROR_BG: str = COLOR_CRITICAL_BG
+COLOR_ERROR_BORDER: str = COLOR_CRITICAL_BORDER
+
+COLOR_NEUTRAL: str = "#64748B"
+COLOR_NEUTRAL_BG: str = "rgba(100, 116, 139, 0.12)"
+COLOR_NEUTRAL_BORDER: str = "rgba(100, 116, 139, 0.25)"
 
 # ---------------------------------------------------------------------------
 # Severity Mappings (matches models.Severity)
 # ---------------------------------------------------------------------------
 
 SEVERITY_COLORS: dict[str, str] = {
-    "critical": COLOR_ERROR,
-    "high": "#BE123C",                     # Rose-700
-    "error": COLOR_ERROR,
-    "moderate": COLOR_WARNING,
-    "warning": COLOR_WARNING,
-    "low": COLOR_SUCCESS,
+    "critical": COLOR_CRITICAL,
+    "high": COLOR_HIGH,
+    "error": COLOR_CRITICAL,
+    "moderate": COLOR_MODERATE,
+    "warning": COLOR_MODERATE,
+    "low": COLOR_LOW,
     "info": COLOR_INFO,
 }
 
 SEVERITY_BG_COLORS: dict[str, str] = {
-    "critical": COLOR_ERROR_BG,
-    "high": "#FFF1F2",
-    "error": COLOR_ERROR_BG,
-    "moderate": COLOR_WARNING_BG,
-    "warning": COLOR_WARNING_BG,
-    "low": COLOR_SUCCESS_BG,
+    "critical": COLOR_CRITICAL_BG,
+    "high": COLOR_HIGH_BG,
+    "error": COLOR_CRITICAL_BG,
+    "moderate": COLOR_MODERATE_BG,
+    "warning": COLOR_MODERATE_BG,
+    "low": COLOR_LOW_BG,
     "info": COLOR_INFO_BG,
 }
 
 SEVERITY_BORDER_COLORS: dict[str, str] = {
-    "critical": COLOR_ERROR_BORDER,
-    "high": "#FECDD3",
-    "error": COLOR_ERROR_BORDER,
-    "moderate": COLOR_WARNING_BORDER,
-    "warning": COLOR_WARNING_BORDER,
-    "low": COLOR_SUCCESS_BORDER,
+    "critical": COLOR_CRITICAL_BORDER,
+    "high": COLOR_HIGH_BORDER,
+    "error": COLOR_CRITICAL_BORDER,
+    "moderate": COLOR_MODERATE_BORDER,
+    "warning": COLOR_MODERATE_BORDER,
+    "low": COLOR_LOW_BORDER,
     "info": COLOR_INFO_BORDER,
 }
 
-# Explicit labels required by product specification
+# Strict product mandate: LOW severity is ALWAYS labeled "No configured checks failed"
 SEVERITY_LABELS: dict[str, str] = {
     "critical": "CRITICAL RISK",
     "high": "HIGH RISK",
@@ -109,40 +147,40 @@ SEVERITY_LABELS: dict[str, str] = {
 # ---------------------------------------------------------------------------
 
 STATUS_COLORS: dict[str, str] = {
-    "passed": COLOR_SUCCESS,
-    "pass": COLOR_SUCCESS,
-    "failed": COLOR_ERROR,
-    "fail": COLOR_ERROR,
-    "error": COLOR_ERROR,
+    "passed": COLOR_LOW,
+    "pass": COLOR_LOW,
+    "failed": COLOR_CRITICAL,
+    "fail": COLOR_CRITICAL,
+    "error": COLOR_CRITICAL,
     "skipped": COLOR_NEUTRAL,
-    "rejected": COLOR_WARNING,
+    "rejected": COLOR_MODERATE,
 }
 
 STATUS_BG_COLORS: dict[str, str] = {
-    "passed": COLOR_SUCCESS_BG,
-    "pass": COLOR_SUCCESS_BG,
-    "failed": COLOR_ERROR_BG,
-    "fail": COLOR_ERROR_BG,
-    "error": COLOR_ERROR_BG,
+    "passed": COLOR_LOW_BG,
+    "pass": COLOR_LOW_BG,
+    "failed": COLOR_CRITICAL_BG,
+    "fail": COLOR_CRITICAL_BG,
+    "error": COLOR_CRITICAL_BG,
     "skipped": COLOR_NEUTRAL_BG,
-    "rejected": COLOR_WARNING_BG,
+    "rejected": COLOR_MODERATE_BG,
 }
 
 STATUS_BORDER_COLORS: dict[str, str] = {
-    "passed": COLOR_SUCCESS_BORDER,
-    "pass": COLOR_SUCCESS_BORDER,
-    "failed": COLOR_ERROR_BORDER,
-    "fail": COLOR_ERROR_BORDER,
-    "error": COLOR_ERROR_BORDER,
+    "passed": COLOR_LOW_BORDER,
+    "pass": COLOR_LOW_BORDER,
+    "failed": COLOR_CRITICAL_BORDER,
+    "fail": COLOR_CRITICAL_BORDER,
+    "error": COLOR_CRITICAL_BORDER,
     "skipped": COLOR_NEUTRAL_BORDER,
-    "rejected": COLOR_WARNING_BORDER,
+    "rejected": COLOR_MODERATE_BORDER,
 }
 
 STATUS_ICONS: dict[str, str] = {
     "passed": "✓",
     "pass": "✓",
-    "failed": "✗",
-    "fail": "✗",
+    "failed": "✕",
+    "fail": "✕",
     "skipped": "⊘",
     "error": "!",
     "rejected": "⊘",
@@ -153,12 +191,13 @@ STATUS_ICONS: dict[str, str] = {
 # ---------------------------------------------------------------------------
 
 FONT_FAMILY_SANS: str = (
-    "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+    "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', "
+    "'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
 )
 FONT_FAMILY_MONO: str = (
-    "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
+    "'SF Mono', ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', monospace"
 )
 
 FONT_SIZE_BASE: str = "14px"
 FONT_SIZE_SMALL: str = "12px"
-FONT_SIZE_HEADING: str = "20px"
+FONT_SIZE_HEADING: str = "22px"

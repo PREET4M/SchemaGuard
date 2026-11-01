@@ -1,303 +1,618 @@
 /* ==========================================================================
-   SchemaGuard — Main UI Stylesheet
-   Clean, restrained, developer-grade aesthetic.
-   Off-white warm background, dark typography, translucent card containers,
-   subtle borders, clear status badges, and strict reduced-motion respect.
+   SchemaGuard — Premium Apple / Linear Inspired Visual Design System
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   Root Color Variables & Tokens
+   Root Variables & Color Tokens
    -------------------------------------------------------------------------- */
 :root {
-  --sg-bg: #F8F9FA;
-  --sg-card-bg: rgba(255, 255, 255, 0.92);
-  --sg-card-border: #E2E8F0;
-  --sg-border-subtle: #F1F5F9;
-  
-  --sg-text-primary: #0F172A;
-  --sg-text-secondary: #334155;
+  --sg-bg-canvas: #090A0F;
+  --sg-bg-surface: #0D111A;
+  --sg-bg-elevated: #121722;
+
+  --sg-glass-surface: rgba(22, 27, 38, 0.70);
+  --sg-glass-surface-hover: rgba(30, 36, 50, 0.85);
+  --sg-glass-border: rgba(255, 255, 255, 0.08);
+  --sg-glass-border-hover: rgba(255, 255, 255, 0.18);
+  --sg-glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+
+  --sg-text-primary: #F8FAFC;
+  --sg-text-secondary: #94A3B8;
   --sg-text-muted: #64748B;
-  
-  --sg-primary: #2563EB;
-  --sg-primary-dark: #1D4ED8;
-  --sg-primary-light: #EFF6FF;
-  
-  --sg-success: #059669;
-  --sg-success-bg: #ECFDF5;
-  --sg-success-border: #A7F3D0;
-  
-  --sg-warning: #D97706;
-  --sg-warning-bg: #FFFBEB;
-  --sg-warning-border: #FDE68A;
-  
-  --sg-danger: #DC2626;
-  --sg-danger-bg: #FEF2F2;
-  --sg-danger-border: #FECACA;
-  
-  --sg-info: #0284C7;
-  --sg-info-bg: #F0F9FF;
-  --sg-info-border: #BAE6FD;
-  
-  --sg-neutral: #6B7280;
-  --sg-neutral-bg: #F3F4F6;
-  --sg-neutral-border: #E5E7EB;
 
-  --sg-radius-sm: 4px;
-  --sg-radius-md: 8px;
-  --sg-radius-lg: 12px;
+  --sg-accent-indigo: #6366F1;
+  --sg-accent-cyan: #06B6D4;
+  --sg-accent-blue: #3B82F6;
+
+  --sg-gradient-primary: linear-gradient(135deg, #6366F1 0%, #3B82F6 50%, #06B6D4 100%);
+  --sg-gradient-primary-hover: linear-gradient(135deg, #4F46E5 0%, #2563EB 50%, #0891B2 100%);
+  --sg-gradient-hero-title: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 60%, #94A3B8 100%);
+
+  --sg-critical: #EF4444;
+  --sg-critical-bg: rgba(239, 68, 68, 0.12);
+  --sg-critical-border: rgba(239, 68, 68, 0.32);
+
+  --sg-high: #F97316;
+  --sg-high-bg: rgba(249, 115, 22, 0.12);
+  --sg-high-border: rgba(249, 115, 22, 0.32);
+
+  --sg-moderate: #EAB308;
+  --sg-moderate-bg: rgba(234, 179, 8, 0.12);
+  --sg-moderate-border: rgba(234, 179, 8, 0.32);
+
+  --sg-low: #22C55E;
+  --sg-low-bg: rgba(34, 197, 94, 0.12);
+  --sg-low-border: rgba(34, 197, 94, 0.32);
+
+  --sg-font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
+  --sg-font-mono: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+  --sg-radius-sm: 6px;
+  --sg-radius-md: 10px;
+  --sg-radius-lg: 16px;
   --sg-radius-pill: 9999px;
-
-  --sg-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  --sg-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 /* --------------------------------------------------------------------------
-   Base Streamlit Overrides
+   Atmospheric Dark Environment & Streamlit Shell
    -------------------------------------------------------------------------- */
 .stApp {
-  background-color: var(--sg-bg);
-  color: var(--sg-text-primary);
-  font-family: var(--sg-font-sans);
+  background-color: var(--sg-bg-canvas) !important;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.09) 0%, transparent 55%),
+    radial-gradient(circle at 85% 15%, rgba(6, 182, 212, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 10% 40%, rgba(59, 130, 246, 0.04) 0%, transparent 40%) !important;
+  background-attachment: fixed !important;
+  color: var(--sg-text-primary) !important;
+  font-family: var(--sg-font-sans) !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
 }
 
-/* Subtle headers */
+/* Hide default streamlit decoration */
+[data-testid="stDecoration"] {
+  display: none !important;
+}
+
+header[data-testid="stHeader"] {
+  background: transparent !important;
+}
+
+/* --------------------------------------------------------------------------
+   Custom Scrollbars
+   -------------------------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--sg-bg-canvas);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--sg-radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.30);
+}
+
+/* --------------------------------------------------------------------------
+   Floating Dark Sidebar (Linear Grade)
+   -------------------------------------------------------------------------- */
+[data-testid="stSidebar"] {
+  background-color: rgba(13, 17, 26, 0.85) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border-right: 1px solid var(--sg-glass-border) !important;
+  box-shadow: 4px 0 24px -2px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-testid="stSidebar"] > div:first-child {
+  padding-top: 1.5rem !important;
+  padding-left: 1.25rem !important;
+  padding-right: 1.25rem !important;
+}
+
+/* Sidebar navigation styling */
+[data-testid="stSidebar"] [data-testid="stRadio"] > div {
+  gap: 0.35rem !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadio"] label {
+  background: transparent !important;
+  border-radius: var(--sg-radius-md) !important;
+  padding: 0.55rem 0.85rem !important;
+  color: var(--sg-text-secondary) !important;
+  font-weight: 500 !important;
+  font-size: 0.92rem !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+  border: 1px solid transparent !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadio"] label:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--sg-text-primary) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadio"] label[data-checked="true"],
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) {
+  background: rgba(99, 102, 241, 0.12) !important;
+  color: #A5B4FC !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Typography Hierarchy & Hero Styling
+   -------------------------------------------------------------------------- */
 h1, h2, h3, h4, h5, h6 {
-  color: var(--sg-text-primary);
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  color: var(--sg-text-primary) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
 }
 
-/* Header container styling */
-.sg-hero-header {
-  padding: 1.25rem 0 0.75rem 0;
+.sg-hero-section {
+  padding: 2.5rem 0 1.5rem 0;
+  margin-bottom: 2rem;
+  position: relative;
+  animation: sgFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sg-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(99, 102, 241, 0.10);
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  color: #A5B4FC;
+  padding: 0.25rem 0.85rem;
+  border-radius: var(--sg-radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   margin-bottom: 1rem;
-  border-bottom: 1px solid var(--sg-card-border);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.2);
 }
 
 .sg-hero-title {
-  font-size: 1.85rem;
-  font-weight: 700;
-  color: var(--sg-text-primary);
-  margin-bottom: 0.35rem;
-  letter-spacing: -0.02em;
+  font-size: 2.85rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  background: var(--sg-gradient-hero-title);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.85rem;
 }
 
 .sg-hero-subtitle {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
+  line-height: 1.6;
   color: var(--sg-text-secondary);
-  line-height: 1.45;
-  margin-bottom: 0.5rem;
+  max-width: 680px;
+  margin-bottom: 1.5rem;
 }
 
 /* --------------------------------------------------------------------------
-   Translucent Card Containers
+   Glassmorphism Cards & Panels
    -------------------------------------------------------------------------- */
 .sg-card {
-  background: var(--sg-card-bg);
-  border: 1px solid var(--sg-card-border);
-  border-radius: var(--sg-radius-md);
-  padding: 1.25rem;
+  background: var(--sg-glass-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--sg-glass-border);
+  border-radius: var(--sg-radius-lg);
+  padding: 1.4rem;
   margin-bottom: 1.25rem;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), var(--sg-glass-highlight);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sg-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+}
+
+.sg-card-interactive:hover {
+  transform: translateY(-3px);
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.5), 
+              0 0 0 1px rgba(99, 102, 241, 0.2), 
+              var(--sg-glass-highlight);
 }
 
 .sg-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--sg-border-subtle);
-  padding-bottom: 0.65rem;
-  margin-bottom: 0.85rem;
+  border-bottom: 1px solid var(--sg-glass-border);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .sg-card-title {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: var(--sg-text-primary);
   margin: 0;
+  letter-spacing: -0.015em;
 }
 
 /* --------------------------------------------------------------------------
-   Pill Badges & Status Tags
+   Badges, Pills & Status Tags
    -------------------------------------------------------------------------- */
 .sg-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.2rem 0.65rem;
+  padding: 0.25rem 0.75rem;
   border-radius: var(--sg-radius-pill);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   line-height: 1.2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  font-variant-numeric: tabular-nums;
 }
 
-/* Severity badge variants */
 .sg-badge-critical {
-  background: var(--sg-danger-bg);
-  color: var(--sg-danger);
-  border: 1px solid var(--sg-danger-border);
+  background: var(--sg-critical-bg);
+  color: var(--sg-critical);
+  border: 1px solid var(--sg-critical-border);
 }
 
 .sg-badge-high {
-  background: #FFF1F2;
-  color: #BE123C;
-  border: 1px solid #FECDD3;
+  background: var(--sg-high-bg);
+  color: var(--sg-high);
+  border: 1px solid var(--sg-high-border);
 }
 
 .sg-badge-moderate {
-  background: var(--sg-warning-bg);
-  color: var(--sg-warning);
-  border: 1px solid var(--sg-warning-border);
+  background: var(--sg-moderate-bg);
+  color: var(--sg-moderate);
+  border: 1px solid var(--sg-moderate-border);
 }
 
 .sg-badge-low {
-  background: var(--sg-success-bg);
-  color: var(--sg-success);
-  border: 1px solid var(--sg-success-border);
+  background: var(--sg-low-bg);
+  color: var(--sg-low);
+  border: 1px solid var(--sg-low-border);
 }
 
 .sg-badge-info {
-  background: var(--sg-info-bg);
-  color: var(--sg-info);
-  border: 1px solid var(--sg-info-border);
-}
-
-.sg-badge-neutral {
-  background: var(--sg-neutral-bg);
-  color: var(--sg-neutral);
-  border: 1px solid var(--sg-neutral-border);
+  background: rgba(6, 182, 212, 0.12);
+  color: var(--sg-accent-cyan);
+  border: 1px solid rgba(6, 182, 212, 0.32);
 }
 
 /* --------------------------------------------------------------------------
    Diff Tags (+, -, ~)
    -------------------------------------------------------------------------- */
 .sg-diff-add {
-  background: var(--sg-success-bg);
-  color: var(--sg-success);
-  border: 1px solid var(--sg-success-border);
-  padding: 2px 6px;
+  background: var(--sg-low-bg);
+  color: var(--sg-low);
+  border: 1px solid var(--sg-low-border);
+  padding: 2px 7px;
   border-radius: var(--sg-radius-sm);
   font-family: var(--sg-font-mono);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .sg-diff-remove {
-  background: var(--sg-danger-bg);
-  color: var(--sg-danger);
-  border: 1px solid var(--sg-danger-border);
-  padding: 2px 6px;
+  background: var(--sg-critical-bg);
+  color: var(--sg-critical);
+  border: 1px solid var(--sg-critical-border);
+  padding: 2px 7px;
   border-radius: var(--sg-radius-sm);
   font-family: var(--sg-font-mono);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .sg-diff-modify {
-  background: var(--sg-warning-bg);
-  color: var(--sg-warning);
-  border: 1px solid var(--sg-warning-border);
-  padding: 2px 6px;
+  background: var(--sg-moderate-bg);
+  color: var(--sg-moderate);
+  border: 1px solid var(--sg-moderate-border);
+  padding: 2px 7px;
   border-radius: var(--sg-radius-sm);
   font-family: var(--sg-font-mono);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 /* --------------------------------------------------------------------------
-   Metric & Stat Tiles
+   Metric & Stat Tiles (Raycast / Linear Grade)
    -------------------------------------------------------------------------- */
 .sg-stat-tile {
-  background: #FFFFFF;
-  border: 1px solid var(--sg-card-border);
+  background: var(--sg-glass-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--sg-glass-border);
   border-radius: var(--sg-radius-md);
-  padding: 0.85rem 1rem;
+  padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), var(--sg-glass-highlight);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+
+.sg-stat-tile:hover {
+  border-color: rgba(99, 102, 241, 0.25);
+  transform: translateY(-1px);
 }
 
 .sg-stat-label {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
   color: var(--sg-text-muted);
-  letter-spacing: 0.04em;
-  margin-bottom: 0.25rem;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.35rem;
 }
 
 .sg-stat-value {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: var(--sg-text-primary);
   font-family: var(--sg-font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 /* --------------------------------------------------------------------------
-   Code & Mono Blocks
+   Native Streamlit Element Overrides (Dark Glass Theme)
    -------------------------------------------------------------------------- */
-.sg-code-inline {
-  font-family: var(--sg-font-mono);
-  font-size: 0.85rem;
-  background: #F1F5F9;
-  color: #1E293B;
-  padding: 0.15rem 0.4rem;
-  border-radius: 3px;
-  border: 1px solid #E2E8F0;
+
+/* Buttons */
+.stButton > button {
+  border-radius: var(--sg-radius-md) !important;
+  font-family: var(--sg-font-sans) !important;
+  font-weight: 600 !important;
+  font-size: 0.92rem !important;
+  letter-spacing: 0.01em !important;
+  padding: 0.55rem 1.25rem !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  border: 1px solid var(--sg-glass-border) !important;
+  background: var(--sg-glass-surface) !important;
+  color: var(--sg-text-primary) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
-.sg-code-box {
-  font-family: var(--sg-font-mono);
-  font-size: 0.85rem;
-  background: #1E293B;
-  color: #F8FAFC;
-  padding: 0.85rem;
-  border-radius: var(--sg-radius-md);
-  overflow-x: auto;
-  line-height: 1.5;
-  margin: 0.5rem 0;
+.stButton > button:hover {
+  background: var(--sg-glass-surface-hover) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  color: #FFFFFF !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35) !important;
+}
+
+.stButton > button[kind="primary"] {
+  background: var(--sg-gradient-primary) !important;
+  border: none !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4) !important;
+}
+
+.stButton > button[kind="primary"]:hover {
+  background: var(--sg-gradient-primary-hover) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.55) !important;
+  filter: brightness(1.08) !important;
+}
+
+/* Download buttons */
+.stDownloadButton > button {
+  background: rgba(30, 36, 50, 0.75) !important;
+  border: 1px solid var(--sg-glass-border) !important;
+  border-radius: var(--sg-radius-md) !important;
+  color: var(--sg-text-primary) !important;
+  font-weight: 600 !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.stDownloadButton > button:hover {
+  background: rgba(40, 48, 66, 0.9) !important;
+  border-color: rgba(6, 182, 212, 0.4) !important;
+  color: #FFFFFF !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(6, 182, 212, 0.25) !important;
+}
+
+/* Textareas & Inputs (Developer Code Editor Aesthetic) */
+.stTextArea textarea {
+  background-color: #0A0D14 !important;
+  color: #E2E8F0 !important;
+  font-family: var(--sg-font-mono) !important;
+  font-size: 0.88rem !important;
+  line-height: 1.5 !important;
+  border: 1px solid var(--sg-glass-border) !important;
+  border-radius: var(--sg-radius-md) !important;
+  padding: 0.75rem 1rem !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.stTextArea textarea:focus {
+  border-color: var(--sg-accent-indigo) !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25), inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Selectbox & Inputs */
+.stSelectbox > div > div {
+  background-color: #0A0D14 !important;
+  color: var(--sg-text-primary) !important;
+  border: 1px solid var(--sg-glass-border) !important;
+  border-radius: var(--sg-radius-md) !important;
+}
+
+/* Radio buttons */
+.stRadio label {
+  color: var(--sg-text-secondary) !important;
+}
+
+/* File Uploader */
+[data-testid="stFileUploader"] {
+  background-color: var(--sg-glass-surface) !important;
+  border: 1px dashed var(--sg-glass-border-hover) !important;
+  border-radius: var(--sg-radius-lg) !important;
+  padding: 1.25rem !important;
+  transition: border-color 0.2s ease !important;
+}
+
+[data-testid="stFileUploader"]:hover {
+  border-color: var(--sg-accent-indigo) !important;
+}
+
+/* Tabs */
+.stTabs [data-baseweb="tab-list"] {
+  background-color: rgba(13, 17, 26, 0.8) !important;
+  border: 1px solid var(--sg-glass-border) !important;
+  border-radius: var(--sg-radius-md) !important;
+  padding: 4px !important;
+  gap: 4px !important;
+}
+
+.stTabs [data-baseweb="tab"] {
+  border-radius: var(--sg-radius-sm) !important;
+  color: var(--sg-text-secondary) !important;
+  font-weight: 500 !important;
+  font-size: 0.9rem !important;
+  padding: 0.45rem 1rem !important;
+  background-color: transparent !important;
+  border: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+  color: var(--sg-text-primary) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.stTabs [aria-selected="true"] {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+  border: 1px solid rgba(99, 102, 241, 0.35) !important;
+}
+
+/* Dataframe styling */
+[data-testid="stDataFrame"] {
+  border: 1px solid var(--sg-glass-border) !important;
+  border-radius: var(--sg-radius-md) !important;
+  overflow: hidden !important;
+}
+
+/* Expanders */
+.streamlit-expanderHeader {
+  background-color: var(--sg-glass-surface) !important;
+  color: var(--sg-text-primary) !important;
+  border: 1px solid var(--sg-glass-border) !important;
+  border-radius: var(--sg-radius-md) !important;
+  font-weight: 600 !important;
+}
+
+.streamlit-expanderContent {
+  background-color: rgba(13, 17, 26, 0.5) !important;
+  border: 1px solid var(--sg-glass-border) !important;
+  border-top: none !important;
+  border-radius: 0 0 var(--sg-radius-md) var(--sg-radius-md) !important;
+}
+
+/* Progress bar */
+.stProgress > div > div > div > div {
+  background: var(--sg-gradient-primary) !important;
+  border-radius: var(--sg-radius-pill) !important;
 }
 
 /* --------------------------------------------------------------------------
-   Callout Banners
+   Callout Containers
    -------------------------------------------------------------------------- */
 .sg-callout {
-  border-left: 4px solid;
-  border-radius: var(--sg-radius-sm);
-  padding: 0.75rem 1rem;
-  margin: 0.75rem 0;
+  border-left: 3px solid;
+  border-radius: var(--sg-radius-md);
+  padding: 0.85rem 1.15rem;
+  margin: 0.85rem 0;
   font-size: 0.9rem;
+  line-height: 1.5;
+  background: var(--sg-glass-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .sg-callout-info {
-  background: var(--sg-info-bg);
-  border-color: var(--sg-info);
-  color: #0369A1;
+  border-color: var(--sg-accent-cyan);
+  background: rgba(6, 182, 212, 0.08);
+  color: #E0F2FE;
 }
 
 .sg-callout-warning {
-  background: var(--sg-warning-bg);
-  border-color: var(--sg-warning);
-  color: #B45309;
+  border-color: var(--sg-moderate);
+  background: rgba(234, 179, 8, 0.08);
+  color: #FEF08A;
 }
 
 .sg-callout-danger {
-  background: var(--sg-danger-bg);
-  border-color: var(--sg-danger);
-  color: #B91C1C;
+  border-color: var(--sg-critical);
+  background: rgba(239, 68, 68, 0.08);
+  color: #FECACA;
 }
 
 .sg-callout-success {
-  background: var(--sg-success-bg);
-  border-color: var(--sg-success);
-  color: #047857;
+  border-color: var(--sg-low);
+  background: rgba(34, 197, 94, 0.08);
+  color: #BBF7D0;
 }
 
 /* --------------------------------------------------------------------------
-   Reduced Motion
+   Code Snippet Container
+   -------------------------------------------------------------------------- */
+.sg-code-container {
+  background: #0A0D14;
+  border: 1px solid var(--sg-glass-border);
+  border-radius: var(--sg-radius-md);
+  padding: 0.85rem 1.1rem;
+  font-family: var(--sg-font-mono);
+  font-size: 0.85rem;
+  color: #CBD5E1;
+  overflow-x: auto;
+  line-height: 1.55;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* --------------------------------------------------------------------------
+   Animations & Keyframes
+   -------------------------------------------------------------------------- */
+@keyframes sgFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Accessibility: Reduced Motion
    -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   *,

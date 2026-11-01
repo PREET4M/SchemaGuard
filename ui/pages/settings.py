@@ -36,39 +36,47 @@ from ui.components import (
 
 
 def render_settings_page() -> None:
-    """Render the SchemaGuard settings and security parameters page."""
+    """Render the Apple / Linear inspired settings and security parameters page."""
     render_header(
         title="Settings & System Limits",
         subtitle="Transparent overview of sandbox constraints, security boundaries, and execution environment.",
+        badge_text="TRANSPARENT BOUNDARIES",
     )
 
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("### Execution Constraints")
+        st.markdown(
+            """
+            <div style="font-size:1.15rem;font-weight:700;color:#F8FAFC;margin-bottom:0.85rem;">
+                Execution Constraints
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         st.markdown(
             f"""
             <div class="sg-card">
                 <table style="width:100%;font-size:0.88rem;border-collapse:collapse;">
-                    <tr style="border-bottom:1px solid #E2E8F0;padding:6px 0;">
-                        <td style="padding:6px 0;color:#64748B;">Max Database Size</td>
-                        <td style="padding:6px 0;font-weight:600;text-align:right;">{MAX_UPLOAD_SIZE_MB} MB</td>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 0;">
+                        <td style="padding:8px 0;color:#94A3B8;">Max Upload Size</td>
+                        <td style="padding:8px 0;font-weight:700;color:#F8FAFC;text-align:right;font-family:monospace;">{MAX_UPLOAD_SIZE_MB} MB</td>
                     </tr>
-                    <tr style="border-bottom:1px solid #E2E8F0;padding:6px 0;">
-                        <td style="padding:6px 0;color:#64748B;">Statement Timeout</td>
-                        <td style="padding:6px 0;font-weight:600;text-align:right;">{QUERY_TIMEOUT_SECONDS} seconds</td>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 0;">
+                        <td style="padding:8px 0;color:#94A3B8;">Statement Timeout</td>
+                        <td style="padding:8px 0;font-weight:700;color:#F8FAFC;text-align:right;font-family:monospace;">{QUERY_TIMEOUT_SECONDS} seconds</td>
                     </tr>
-                    <tr style="border-bottom:1px solid #E2E8F0;padding:6px 0;">
-                        <td style="padding:6px 0;color:#64748B;">Max Sample Rows</td>
-                        <td style="padding:6px 0;font-weight:600;text-align:right;">{MAX_SAMPLE_ROWS} rows</td>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 0;">
+                        <td style="padding:8px 0;color:#94A3B8;">Max Sample Rows</td>
+                        <td style="padding:8px 0;font-weight:700;color:#F8FAFC;text-align:right;font-family:monospace;">{MAX_SAMPLE_ROWS} rows</td>
                     </tr>
-                    <tr style="border-bottom:1px solid #E2E8F0;padding:6px 0;">
-                        <td style="padding:6px 0;color:#64748B;">Sandbox Directory</td>
-                        <td style="padding:6px 0;font-weight:600;text-align:right;font-family:monospace;">{SANDBOX_DIR}/</td>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 0;">
+                        <td style="padding:8px 0;color:#94A3B8;">Sandbox Directory</td>
+                        <td style="padding:8px 0;font-weight:700;color:#A5B4FC;text-align:right;font-family:monospace;">{SANDBOX_DIR}/</td>
                     </tr>
                     <tr>
-                        <td style="padding:6px 0;color:#64748B;">Sandbox Clone File</td>
-                        <td style="padding:6px 0;font-weight:600;text-align:right;font-family:monospace;">{SANDBOX_DB_FILENAME}</td>
+                        <td style="padding:8px 0;color:#94A3B8;">Sandbox Clone File</td>
+                        <td style="padding:8px 0;font-weight:700;color:#A5B4FC;text-align:right;font-family:monospace;">{SANDBOX_DB_FILENAME}</td>
                     </tr>
                 </table>
             </div>
@@ -76,14 +84,16 @@ def render_settings_page() -> None:
             unsafe_allow_html=True,
         )
 
-        st.markdown("### SQLite Connection Pragmas")
         st.markdown(
             """
-            Applied immediately upon opening each sandbox connection:
-            """
+            <div style="font-size:1.15rem;font-weight:700;color:#F8FAFC;margin:1.5rem 0 0.85rem 0;">
+                SQLite Connection Pragmas
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
         pragma_rows = "".join(
-            f"<tr style='border-bottom:1px solid #E2E8F0;'><td style='padding:6px 0;color:#64748B;'>PRAGMA {k}</td><td style='padding:6px 0;font-weight:600;text-align:right;font-family:monospace;'>{v}</td></tr>"
+            f"<tr style='border-bottom:1px solid rgba(255,255,255,0.08);'><td style='padding:8px 0;color:#94A3B8;'>PRAGMA {k}</td><td style='padding:8px 0;font-weight:700;color:#F8FAFC;text-align:right;font-family:monospace;'>{v}</td></tr>"
             for k, v in SANDBOX_PRAGMAS.items()
         )
         st.markdown(
@@ -98,18 +108,25 @@ def render_settings_page() -> None:
         )
 
     with col2:
-        st.markdown("### Security Authorizer Boundary")
+        st.markdown(
+            """
+            <div style="font-size:1.15rem;font-weight:700;color:#F8FAFC;margin-bottom:0.85rem;">
+                Security Authorizer Boundary
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         st.markdown(
             """
             <div class="sg-card">
-                <div style="font-weight:600;font-size:0.92rem;color:#0F172A;margin-bottom:0.4rem;">
+                <div style="font-weight:700;font-size:0.95rem;color:#F8FAFC;margin-bottom:0.4rem;">
                     Blocked SQLite Operations
                 </div>
-                <div style="font-size:0.85rem;color:#334155;line-height:1.45;margin-bottom:0.75rem;">
+                <div style="font-size:0.85rem;color:#94A3B8;line-height:1.45;margin-bottom:0.85rem;">
                     During migration execution and contract replay, SQLite's low-level <code>set_authorizer</code>
                     callback strictly blocks attempts to breach the sandbox:
                 </div>
-                <ul style="font-size:0.85rem;color:#334155;padding-left:1.2rem;margin-bottom:0;">
+                <ul style="font-size:0.85rem;color:#CBD5E1;padding-left:1.2rem;margin-bottom:0;line-height:1.7;">
                     <li><strong>SQLITE_ATTACH / DETACH</strong>: Blocked from referencing external databases.</li>
                     <li><strong>PRAGMA writable_schema</strong>: Blocked to prevent raw catalog corruption.</li>
                     <li><strong>sqlite3_enable_load_extension</strong>: Blocked to prevent loading unvetted native binaries.</li>
@@ -120,26 +137,33 @@ def render_settings_page() -> None:
             unsafe_allow_html=True,
         )
 
-        st.markdown("### Runtime Environment")
+        st.markdown(
+            """
+            <div style="font-size:1.15rem;font-weight:700;color:#F8FAFC;margin:1.5rem 0 0.85rem 0;">
+                Runtime Environment
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         st.markdown(
             f"""
             <div class="sg-card">
                 <table style="width:100%;font-size:0.88rem;border-collapse:collapse;">
-                    <tr style="border-bottom:1px solid #E2E8F0;">
-                        <td style="padding:6px 0;color:#64748B;">Python Runtime</td>
-                        <td style="padding:6px 0;font-weight:600;text-align:right;font-family:monospace;">{platform.python_version()}</td>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                        <td style="padding:8px 0;color:#94A3B8;">Python Runtime</td>
+                        <td style="padding:8px 0;font-weight:700;color:#F8FAFC;text-align:right;font-family:monospace;">{platform.python_version()}</td>
                     </tr>
-                    <tr style="border-bottom:1px solid #E2E8F0;">
-                        <td style="padding:6px 0;color:#64748B;">SQLite Engine</td>
-                        <td style="padding:6px 0;font-weight:600;text-align:right;font-family:monospace;">{sqlite3.sqlite_version}</td>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                        <td style="padding:8px 0;color:#94A3B8;">SQLite Engine</td>
+                        <td style="padding:8px 0;font-weight:700;color:#F8FAFC;text-align:right;font-family:monospace;">{sqlite3.sqlite_version}</td>
                     </tr>
-                    <tr style="border-bottom:1px solid #E2E8F0;">
-                        <td style="padding:6px 0;color:#64748B;">SQLGlot Parser</td>
-                        <td style="padding:6px 0;font-weight:600;text-align:right;font-family:monospace;">{sqlglot.__version__}</td>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                        <td style="padding:8px 0;color:#94A3B8;">SQLGlot Parser</td>
+                        <td style="padding:8px 0;font-weight:700;color:#F8FAFC;text-align:right;font-family:monospace;">{sqlglot.__version__}</td>
                     </tr>
                     <tr>
-                        <td style="padding:6px 0;color:#64748B;">Streamlit Version</td>
-                        <td style="padding:6px 0;font-weight:600;text-align:right;font-family:monospace;">{st.__version__}</td>
+                        <td style="padding:8px 0;color:#94A3B8;">Streamlit Version</td>
+                        <td style="padding:8px 0;font-weight:700;color:#F8FAFC;text-align:right;font-family:monospace;">{st.__version__}</td>
                     </tr>
                 </table>
             </div>
