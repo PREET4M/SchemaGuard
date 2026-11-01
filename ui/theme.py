@@ -26,10 +26,13 @@ COLOR_NEUTRAL: str = "#6B7280"      # Gray-500    — muted text
 # ---------------------------------------------------------------------------
 
 SEVERITY_COLORS: dict[str, str] = {
-    "info": COLOR_INFO,
-    "warning": COLOR_WARNING,
-    "error": COLOR_ERROR,
     "critical": COLOR_ERROR,
+    "high": COLOR_ERROR,
+    "error": COLOR_ERROR,
+    "moderate": COLOR_WARNING,
+    "warning": COLOR_WARNING,
+    "low": COLOR_INFO,
+    "info": COLOR_INFO,
 }
 
 # ---------------------------------------------------------------------------

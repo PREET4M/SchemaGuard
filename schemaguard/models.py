@@ -23,10 +23,13 @@ from typing import Any
 class Severity(str, Enum):
     """Risk level assigned to a schema finding or invariant violation."""
 
-    INFO = "info"
-    WARNING = "warning"
-    ERROR = "error"
     CRITICAL = "critical"
+    HIGH = "high"
+    ERROR = "error"
+    MODERATE = "moderate"
+    WARNING = "warning"
+    LOW = "low"
+    INFO = "info"
 
 
 class CheckStatus(str, Enum):
@@ -45,25 +48,60 @@ class CheckStatus(str, Enum):
 
 @dataclass(frozen=True)
 class SchemaFinding:
-    """A single observation about a schema element (table, column, index, …).
+    """A finding from static SQL analysis or dynamic schema inspection.
 
     Attributes:
-        object_type: Kind of database object (e.g. ``"table"``, ``"column"``).
-        object_name: Fully-qualified name of the affected object.
-        finding:     Human-readable description of what was found.
-        severity:    Risk level of this finding.
-        suggestion:  Optional remediation hint surfaced in the report.
+        rule_id:             Unique rule identifier (e.g. ``"SG-ST-001"``).
+        severity:            Risk level (CRITICAL, HIGH, MODERATE, LOW, INFO).
+        title:               Short descriptive title of the finding.
+        explanation:         Detailed technical explanation of the issue.
+        evidence:            Raw SQL snippet or statement text.
+        statement_index:     Zero-based position of the statement in the migration.
+        human_review_action: Recommended verification or review action.
+        object_type:         Target object kind (e.g. ``"table"``, ``"column"``).
+        object_name:         Name of the affected database object.
+        finding:             Human-readable summary (defaults to title + explanation).
+        suggestion:          Remediation advice (defaults to human_review_action).
+        is_static:           True if identified by static analysis.
+        is_destructive:      True if this finding represents a destructive change.
     """
 
-    object_type: str
-    object_name: str
-    finding: str
-    severity: Severity
+    rule_id: str = ""
+    severity: Severity = Severity.WARNING
+    title: str = ""
+    explanation: str = ""
+    evidence: str = ""
+    statement_index: int = 0
+    human_review_action: str = ""
+    object_type: str = ""
+    object_name: str = ""
+    finding: str = ""
     suggestion: str = ""
+    is_static: bool = True
+    is_destructive: bool = True
+
+    def __post_init__(self) -> None:
+        """Derive legacy/summary fields if not explicitly provided."""
+        if not self.finding and (self.title or self.explanation):
+            object.__setattr__(
+                self,
+                "finding",
+                f"{self.title}: {self.explanation}" if self.title and self.explanation else (self.title or self.explanation),
+            )
+        if not self.suggestion and self.human_review_action:
+            object.__setattr__(self, "suggestion", self.human_review_action)
+        if not self.title and self.finding:
+            object.__setattr__(self, "title", self.finding)
+        if not self.human_review_action and self.suggestion:
+            object.__setattr__(self, "human_review_action", self.suggestion)
 
     def is_blocking(self) -> bool:
         """Return ``True`` if this finding should halt migration approval."""
-        return self.severity in (Severity.ERROR, Severity.CRITICAL)
+        return self.severity in (Severity.CRITICAL, Severity.HIGH, Severity.ERROR)
+
+
+# Alias for explicit static analysis code clarity
+StaticFinding = SchemaFinding
 
 
 @dataclass(frozen=True)
