@@ -1,0 +1,25 @@
+# Virtual environments
+.venv/
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Test cache
+.pytest_cache/
+
+# Environment variables
+.env
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# SQLite database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Runtime artefacts
+temp_sandbox/
+reports_output/
+
