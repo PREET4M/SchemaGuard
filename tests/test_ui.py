@@ -6,6 +6,7 @@ Unit and functional tests for SchemaGuard's Streamlit UI layer:
   - Components and badges
   - Query splitting and demo file readers
   - Page render routines with and without active RehearsalReports
+  - Failure cases, metrics, and multi-scenario coverage
 """
 
 from __future__ import annotations
@@ -187,4 +188,50 @@ def test_settings_page_render() -> None:
     """Verify Settings page renders constraints and boundaries without error."""
     with patch("streamlit.markdown") as mock_md:
         render_settings_page()
+        assert mock_md.called
+
+
+def test_overview_page_render() -> None:
+    """Verify Overview page renders hero, capability metrics, scenarios, and architecture."""
+    with patch("streamlit.markdown") as mock_md, patch("streamlit.button") as mock_btn:
+        mock_btn.return_value = False
+        render_overview_page()
+        assert mock_md.called
+
+
+def test_rehearsal_page_render_demo() -> None:
+    """Verify Rehearsal page renders source selection, migration workspace, contracts, and invariants."""
+    session_state: dict[str, any] = {"db_source_type": "demo"}
+    with patch("streamlit.session_state", session_state), patch("streamlit.markdown") as mock_md, patch("streamlit.button") as mock_btn:
+        mock_btn.return_value = False
+        render_rehearsal_page()
+        assert mock_md.called
+
+
+def test_results_page_with_failures(simple_db: Path) -> None:
+    """Verify Results page renders accurately when contracts, invariants, or migrations fail."""
+    # Execute a rehearsal that triggers failures
+    report = rehearse_migration(
+        source_db_path=simple_db,
+        migration_sql="DROP TABLE users;",
+        old_app_contracts=["SELECT id, name FROM users;"],
+        new_app_contracts=[],
+        invariants=["SELECT id FROM users;"],
+    )
+
+    session_state: dict[str, any] = {"rehearsal_report": report}
+    with patch("streamlit.session_state", session_state), patch("streamlit.markdown") as mock_md:
+        render_results_page()
+        assert mock_md.called
+        assert report.succeeded is False
+        assert report.severity == Severity.CRITICAL
+
+
+def test_metric_tile_and_row() -> None:
+    """Verify metric tile and row helpers with different parameter configurations."""
+    with patch("streamlit.markdown") as mock_md:
+        metric_tile("Active Contracts", 10, subtext="All verified", delta="+2")
+        assert mock_md.called
+
+        metric_row({"Metric A": "100%", "Metric B": 42})
         assert mock_md.called
