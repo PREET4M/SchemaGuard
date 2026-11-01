@@ -41,16 +41,22 @@ SEVERITY_COLORS: dict[str, str] = {
 
 STATUS_COLORS: dict[str, str] = {
     "passed": COLOR_SUCCESS,
+    "pass": COLOR_SUCCESS,
     "failed": COLOR_ERROR,
+    "fail": COLOR_ERROR,
     "skipped": COLOR_NEUTRAL,
     "error": COLOR_ERROR,
+    "rejected": COLOR_WARNING,
 }
 
 STATUS_ICONS: dict[str, str] = {
     "passed": "✅",
+    "pass": "✅",
     "failed": "❌",
+    "fail": "❌",
     "skipped": "⏭️",
     "error": "💥",
+    "rejected": "🚫",
 }
 
 # ---------------------------------------------------------------------------

@@ -39,6 +39,24 @@ class CheckStatus(str, Enum):
     FAILED = "failed"
     SKIPPED = "skipped"
     ERROR = "error"
+    PASS = "PASS"
+    FAIL = "FAIL"
+    REJECTED = "REJECTED"
+
+
+class ContractStatus(str, Enum):
+    """Outcome of an application query contract check."""
+
+    PASS = "PASS"
+    FAIL = "FAIL"
+    REJECTED = "REJECTED"
+
+
+class ContractType(str, Enum):
+    """Classification of an application query contract."""
+
+    OLD_APP = "OLD_APP"
+    NEW_APP = "NEW_APP"
 
 
 # ---------------------------------------------------------------------------
@@ -108,34 +126,61 @@ StaticFinding = SchemaFinding
 class ContractResult:
     """Outcome of replaying a single read-only application query contract.
 
-    A *contract* is a named SQL SELECT statement whose result shape (column
-    names, row count bounds) must survive the migration unchanged.
-
     Attributes:
-        contract_name:   Unique identifier for the contract.
-        sql:             The SQL statement that was replayed.
-        status:          Whether the contract passed, failed, or errored.
-        row_count_pre:   Row count returned **before** the migration.
-        row_count_post:  Row count returned **after** the migration.
-        columns_pre:     Column names returned **before** the migration.
-        columns_post:    Column names returned **after** the migration.
-        error_message:   Populated only when ``status`` is ``ERROR``.
-        elapsed_ms:      Wall-clock time (milliseconds) for the post run.
+        name:              Unique identifier / name of the contract.
+        contract_type:     ContractType.OLD_APP or ContractType.NEW_APP.
+        status:            ContractStatus.PASS, FAIL, or REJECTED.
+        sql_statement:     The SQL query string that was executed.
+        execution_time_ms: Wall-clock query execution time in milliseconds.
+        error_message:     Error message if status is FAIL or REJECTED.
+        column_names:      Tuple of result column names (if passed).
+        row_count_post:    Row count returned post-migration.
+        row_count_pre:     Row count returned pre-migration (if replayed).
+        columns_pre:       Column names returned before migration (if replayed).
+        contract_name:     Backward-compatibility alias for name.
+        sql:               Backward-compatibility alias for sql_statement.
+        elapsed_ms:        Backward-compatibility alias for execution_time_ms.
+        columns_post:      Backward-compatibility alias for column_names.
     """
 
-    contract_name: str
-    sql: str
-    status: CheckStatus
-    row_count_pre: int = 0
-    row_count_post: int = 0
-    columns_pre: tuple[str, ...] = field(default_factory=tuple)
-    columns_post: tuple[str, ...] = field(default_factory=tuple)
+    name: str = ""
+    contract_type: ContractType | str = ContractType.OLD_APP
+    status: ContractStatus | CheckStatus | str = ContractStatus.PASS
+    sql_statement: str = ""
+    execution_time_ms: float = 0.0
     error_message: str = ""
+    column_names: tuple[str, ...] = field(default_factory=tuple)
+    row_count_post: int = 0
+    row_count_pre: int = 0
+    columns_pre: tuple[str, ...] = field(default_factory=tuple)
+    contract_name: str = ""
+    sql: str = ""
     elapsed_ms: float = 0.0
+    columns_post: tuple[str, ...] = field(default_factory=tuple)
+
+    def __post_init__(self) -> None:
+        """Synchronize primary and alias fields for full compatibility."""
+        n = self.name or self.contract_name
+        object.__setattr__(self, "name", n)
+        object.__setattr__(self, "contract_name", n)
+
+        s = self.sql_statement or self.sql
+        object.__setattr__(self, "sql_statement", s)
+        object.__setattr__(self, "sql", s)
+
+        t = self.execution_time_ms or self.elapsed_ms
+        object.__setattr__(self, "execution_time_ms", t)
+        object.__setattr__(self, "elapsed_ms", t)
+
+        cols = tuple(self.column_names) if self.column_names else tuple(self.columns_post)
+        object.__setattr__(self, "column_names", cols)
+        object.__setattr__(self, "columns_post", cols)
 
     def columns_changed(self) -> bool:
         """Return ``True`` if the result set columns differ post-migration."""
-        return self.columns_pre != self.columns_post
+        if not self.columns_pre:
+            return False
+        return self.columns_pre != self.column_names
 
     def row_count_delta(self) -> int:
         """Signed difference in row count (post − pre)."""
@@ -256,7 +301,10 @@ class MigrationResult:
         """Return ``True`` only when every check passed and migration applied."""
         if not self.migration_applied:
             return False
-        contracts_ok = all(r.status == CheckStatus.PASSED for r in self.contract_results)
+        contracts_ok = all(
+            r.status in (ContractStatus.PASS, CheckStatus.PASSED, "PASS", "passed")
+            for r in self.contract_results
+        )
         invariants_ok = all(r.status == CheckStatus.PASSED for r in self.invariant_results)
         findings_ok = not any(f.is_blocking() for f in self.schema_findings)
         return contracts_ok and invariants_ok and findings_ok
@@ -267,7 +315,10 @@ class MigrationResult:
 
     def failed_contracts(self) -> list[ContractResult]:
         """Return only the contracts that did not pass."""
-        return [r for r in self.contract_results if r.status != CheckStatus.PASSED]
+        return [
+            r for r in self.contract_results
+            if r.status not in (ContractStatus.PASS, CheckStatus.PASSED, "PASS", "passed")
+        ]
 
     def failed_invariants(self) -> list[InvariantResult]:
         """Return only the invariants that did not hold."""
