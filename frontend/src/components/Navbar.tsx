@@ -2,76 +2,60 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShieldCheck, ArrowRight, Settings as SettingsIcon } from "lucide-react";
+import { Shield, GitBranch } from "lucide-react";
+
+const NAV = [
+  { href: "/", label: "Home" },
+  { href: "/rehearsal", label: "Rehearsal" },
+];
 
 export default function Navbar() {
-  const pathname = usePathname();
+  const path = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 w-full glass-nav">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Left: Brand */}
+    <header className="sticky top-0 z-50 glass-nav">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+        {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-lg bg-[#2563EB]/10 border border-[#2563EB]/25 flex items-center justify-center text-[#2563EB] group-hover:bg-[#2563EB] group-hover:text-white transition-colors duration-200">
-            <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
+          <div className="w-7 h-7 rounded-lg bg-[#2563EB] flex items-center justify-center shadow-sm">
+            <Shield className="w-4 h-4 text-white" strokeWidth={2.2} />
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[17px] font-bold tracking-tight text-[#171C26]">
-              SchemaGuard
-            </span>
-            <span className="text-[11px] font-semibold text-[#2563EB] bg-[#2563EB]/10 border border-[#2563EB]/20 px-2 py-0.5 rounded-md">
-              v2.0
-            </span>
-          </div>
+          <span className="text-sm font-bold text-[#171C26] tracking-tight">SchemaGuard</span>
         </Link>
 
-        {/* Center: Navigation Links */}
-        <nav className="hidden md:flex items-center gap-8">
-          <Link
-            href="/#product"
-            className="text-sm font-medium text-[#647084] hover:text-[#171C26] transition-colors"
-          >
-            Product
-          </Link>
-          <Link
-            href="/#how-it-works"
-            className="text-sm font-medium text-[#647084] hover:text-[#171C26] transition-colors"
-          >
-            How It Works
-          </Link>
-          <Link
-            href="/#safety"
-            className="text-sm font-medium text-[#647084] hover:text-[#171C26] transition-colors"
-          >
-            Safety
-          </Link>
-          <Link
-            href="/settings"
-            className={`text-sm font-medium transition-colors ${
-              pathname === "/settings"
-                ? "text-[#2563EB] font-semibold"
-                : "text-[#647084] hover:text-[#171C26]"
-            }`}
-          >
-            Settings
-          </Link>
+        {/* Nav links */}
+        <nav className="hidden sm:flex items-center gap-1">
+          {NAV.map((n) => (
+            <Link
+              key={n.href}
+              href={n.href}
+              className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                path === n.href
+                  ? "bg-[#2563EB]/10 text-[#2563EB]"
+                  : "text-[#647084] hover:text-[#171C26] hover:bg-[#F1F4F8]"
+              }`}
+            >
+              {n.label}
+            </Link>
+          ))}
         </nav>
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-3">
-          <Link
-            href="/settings"
-            className="md:hidden p-2 text-[#647084] hover:text-[#171C26] rounded-lg hover:bg-[#F1F4F8]"
-            title="Settings"
+        {/* Right actions */}
+        <div className="flex items-center gap-2">
+          <a
+            href="https://github.com"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#647084] hover:text-[#171C26] hover:bg-[#F1F4F8] rounded-lg transition-colors"
           >
-            <SettingsIcon className="w-5 h-5" />
-          </Link>
+            <GitBranch className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">GitHub</span>
+          </a>
           <Link
             href="/rehearsal"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] rounded-lg shadow-sm hover:shadow transition-all duration-150"
+            className="btn-primary text-xs px-4 py-2"
           >
-            <span>Start Rehearsal</span>
-            <ArrowRight className="w-4 h-4 stroke-[2.2]" />
+            Start Rehearsal
           </Link>
         </div>
       </div>

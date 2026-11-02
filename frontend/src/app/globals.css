@@ -1,88 +1,120 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* ──────────────────────────────────────────
+   Design Tokens
+────────────────────────────────────────── */
 :root {
-  --background: #F7F8FA;
-  --foreground: #171C26;
-  --card: #FFFFFF;
-  --card-secondary: #F1F4F8;
+  --bg: #F7F8FA;
+  --surface: #FFFFFF;
+  --surface-2: #F1F4F8;
   --border: #E5E9F0;
   --primary: #2563EB;
-  --secondary: #0891B2;
-  --text-primary: #171C26;
-  --text-secondary: #647084;
-  --text-muted: #929BA9;
+  --primary-dark: #1D4ED8;
+  --cyan: #0891B2;
+  --text: #171C26;
+  --text-2: #647084;
+  --muted: #929BA9;
   --success: #159B67;
   --warning: #D99A22;
   --error: #DC4B4B;
 }
 
-/* Force light mode regardless of operating system dark theme preference */
-html,
-body {
-  background-color: #F7F8FA !important;
-  color: #171C26 !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ──────────────────────────────────────────
+   Base Reset — force light mode
+────────────────────────────────────────── */
+@layer base {
+  html {
+    @apply h-full;
+    color-scheme: light;
+    background-color: #F7F8FA;
+  }
+  body {
+    @apply min-h-full text-[#171C26] antialiased;
+    background-color: #F7F8FA;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
 }
 
-/* Glassmorphism Classes (Light Mode) */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #E5E9F0;
-  box-shadow: 0 4px 20px -2px rgba(23, 28, 38, 0.05), 0 1px 3px rgba(23, 28, 38, 0.02);
+/* ──────────────────────────────────────────
+   Component Utilities
+────────────────────────────────────────── */
+@layer components {
+  /* Glassmorphism surface */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(229, 233, 240, 0.9);
+    box-shadow: 0 4px 20px -2px rgba(23, 28, 38, 0.05), 0 1px 3px rgba(23, 28, 38, 0.02);
+  }
+
+  /* Sticky glass nav */
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(229, 233, 240, 0.8);
+  }
+
+  /* Standard elevated card */
+  .card-elevated {
+    @apply bg-white border border-[#E5E9F0] rounded-xl;
+    box-shadow: 0 2px 12px -2px rgba(23, 28, 38, 0.06), 0 1px 3px rgba(23, 28, 38, 0.03);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+  .card-elevated:hover {
+    border-color: #CBD5E1;
+    box-shadow: 0 8px 24px -4px rgba(23, 28, 38, 0.08), 0 2px 6px rgba(23, 28, 38, 0.04);
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] rounded-xl shadow-sm transition-all duration-150;
+  }
+
+  /* Secondary / outline button */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-[#171C26] bg-white hover:bg-[#F1F4F8] border border-[#E5E9F0] rounded-xl shadow-sm transition-all duration-150;
+  }
+
+  /* Monospace code editor textarea */
+  .light-code-editor {
+    font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    @apply bg-[#FAFCFE] text-[#1E293B] border border-[#E2E8F0] rounded-lg text-sm leading-relaxed;
+    tab-size: 2;
+  }
+  .light-code-editor:focus {
+    @apply outline-none border-[#2563EB];
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+
+  /* Status badges */
+  .badge-success { @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold text-[#159B67] bg-[#159B67]/10 border border-[#159B67]/20; }
+  .badge-error   { @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold text-[#DC4B4B] bg-[#DC4B4B]/10 border border-[#DC4B4B]/20; }
+  .badge-warning { @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold text-[#D99A22] bg-[#D99A22]/10 border border-[#D99A22]/20; }
+  .badge-info    { @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold text-[#2563EB] bg-[#2563EB]/10 border border-[#2563EB]/20; }
+  .badge-muted   { @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold text-[#647084] bg-[#F1F4F8] border border-[#E5E9F0]; }
 }
 
-.glass-nav {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(229, 233, 240, 0.8);
-}
+/* ──────────────────────────────────────────
+   Scrollbars
+────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: #F1F4F8; }
+::-webkit-scrollbar-thumb  { background: #CBD5E1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-.card-elevated {
-  background: #FFFFFF;
-  border: 1px solid #E5E9F0;
-  box-shadow: 0 2px 12px -2px rgba(23, 28, 38, 0.06), 0 1px 3px rgba(23, 28, 38, 0.03);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.card-elevated:hover {
-  border-color: #CBD5E1;
-  box-shadow: 0 8px 24px -4px rgba(23, 28, 38, 0.08), 0 2px 6px rgba(23, 28, 38, 0.04);
-}
-
-/* Custom Scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #F1F4F8;
-}
-::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
-}
-
-/* Clean Light Code Editor styling */
-.light-code-editor {
-  font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  background-color: #FAFCFE;
-  color: #1E293B;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  line-height: 1.55;
-  tab-size: 2;
-}
-
-.light-code-editor:focus {
-  outline: none;
-  border-color: #2563EB;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+/* ──────────────────────────────────────────
+   Selection
+────────────────────────────────────────── */
+::selection {
+  background-color: rgba(37, 99, 235, 0.15);
+  color: #2563EB;
 }
