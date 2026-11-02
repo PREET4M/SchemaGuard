@@ -20,7 +20,6 @@ from pathlib import Path
 from typing import Any
 
 from schemaguard.core.schema_inspector import (
-    ColumnInfo,
     ForeignKeyInfo,
     IndexInfo,
     TableSchema,

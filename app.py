@@ -34,7 +34,7 @@ st.set_page_config(
 # Load Custom Stylesheet
 # ---------------------------------------------------------------------------
 
-CSS_PATH = Path("ui/styles/main.css")
+CSS_PATH = Path(__file__).resolve().parent / "ui" / "styles" / "main.css"
 if CSS_PATH.exists():
     css_content = CSS_PATH.read_text(encoding="utf-8")
     st.markdown(f"<style>{css_content}</style>", unsafe_allow_html=True)

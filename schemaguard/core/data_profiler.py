@@ -13,9 +13,7 @@ Tracks:
 from __future__ import annotations
 
 import sqlite3
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Final
+from dataclasses import dataclass
 
 from schemaguard.core.schema_inspector import get_row_count, get_tables
 

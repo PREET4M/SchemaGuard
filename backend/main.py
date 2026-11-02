@@ -15,17 +15,15 @@ Connects the Next.js React frontend directly to the core SQLite rehearsal engine
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 import platform
 import sqlite3
-import sys
 import uuid
 from typing import Any
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 import sqlglot
 
@@ -39,8 +37,6 @@ from schemaguard.config import (
     SANDBOX_PRAGMAS,
 )
 from schemaguard.core.orchestrator import RehearsalReport, rehearse_migration
-from schemaguard.core.schema_inspector import inspect_schema
-from schemaguard.models import ContractType, Severity
 from schemaguard.utils.file_validation import FileValidationError, validate_sqlite_file
 
 app = FastAPI(
@@ -58,13 +54,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Directories
-DEMO_DIR = Path("data/demo")
+# Root directory resolution for cross-platform and subfolder robustness
+BASE_DIR = Path(__file__).resolve().parent.parent
+DEMO_DIR = BASE_DIR / "data" / "demo"
 DEMO_DB_PATH = DEMO_DIR / "ecommerce.db"
 MIGRATION_DIR = DEMO_DIR / "migrations"
 CONTRACTS_DIR = DEMO_DIR / "contracts"
 INVARIANTS_DIR = DEMO_DIR / "invariants"
-UPLOAD_DIR = Path(SANDBOX_DIR) / "uploads"
+UPLOAD_DIR = BASE_DIR / SANDBOX_DIR / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 # In-memory storage for active reports & uploaded files

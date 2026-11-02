@@ -18,10 +18,9 @@ Strict read-only enforcement:
 
 from __future__ import annotations
 
-import re
 import sqlite3
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Final, Iterable
 
@@ -31,7 +30,7 @@ from schemaguard.core.contract_runner import (
     validate_read_only_ast,
 )
 from schemaguard.core.sandbox import SandboxContext
-from schemaguard.models import CheckStatus, InvariantResult, InvariantStatus
+from schemaguard.models import InvariantResult, InvariantStatus
 
 _SANDBOX_ROOT: Final[Path] = Path(SANDBOX_DIR).resolve()
 

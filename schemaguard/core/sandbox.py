@@ -25,7 +25,6 @@ Public API
 from __future__ import annotations
 
 import sqlite3
-import tempfile
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path

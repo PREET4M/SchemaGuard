@@ -14,7 +14,7 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-from schemaguard.config import MAX_UPLOAD_SIZE_BYTES, MAX_UPLOAD_SIZE_MB
+from schemaguard.config import MAX_UPLOAD_SIZE_BYTES
 
 # The first 16 bytes of every valid SQLite database file.
 # See https://www.sqlite.org/fileformat.html §1.2

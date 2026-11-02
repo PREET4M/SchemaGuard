@@ -27,7 +27,7 @@ from sqlglot import exp
 
 from schemaguard.config import SANDBOX_DIR
 from schemaguard.core.sandbox import SandboxContext
-from schemaguard.models import CheckStatus, ContractResult, ContractStatus, ContractType
+from schemaguard.models import ContractResult, ContractStatus, ContractType
 
 # ---------------------------------------------------------------------------
 # Constants and Safety Sentinel

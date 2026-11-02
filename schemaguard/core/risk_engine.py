@@ -25,7 +25,7 @@ Rule: Never let a low numerical score override a concrete CRITICAL finding.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Final, Iterable
 
 from schemaguard.models import (
@@ -33,7 +33,6 @@ from schemaguard.models import (
     ContractStatus,
     ContractType,
     InvariantResult,
-    InvariantStatus,
     MigrationResult,
     SchemaDiffResult,
     SchemaFinding,

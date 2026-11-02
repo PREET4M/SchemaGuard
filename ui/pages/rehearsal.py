@@ -13,7 +13,6 @@ Enables developers to:
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 import sqlite3
 import streamlit as st
@@ -30,7 +29,8 @@ from ui.components import (
     warning_box,
 )
 
-DEMO_DIR = Path("data/demo")
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+DEMO_DIR = BASE_DIR / "data" / "demo"
 DEMO_DB_PATH = DEMO_DIR / "ecommerce.db"
 MIGRATION_DIR = DEMO_DIR / "migrations"
 CONTRACTS_DIR = DEMO_DIR / "contracts"

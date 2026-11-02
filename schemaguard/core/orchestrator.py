@@ -26,12 +26,12 @@ from __future__ import annotations
 
 import sqlite3
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
-from schemaguard.config import MAX_UPLOAD_SIZE_BYTES, MAX_UPLOAD_SIZE_MB
+from schemaguard.config import MAX_UPLOAD_SIZE_BYTES
 from schemaguard.core.analyzer import analyze_migration
 from schemaguard.core.contract_runner import ContractQuery, run_contracts
 from schemaguard.core.data_profiler import DataProfileResult, compute_data_profile
@@ -42,7 +42,7 @@ from schemaguard.core.invariant_runner import (
 )
 from schemaguard.core.migration_runner import run_migration
 from schemaguard.core.risk_engine import RiskAssessment, assess_risk
-from schemaguard.core.sandbox import SandboxContext, create_sandbox
+from schemaguard.core.sandbox import create_sandbox
 from schemaguard.core.schema_diff import diff_schemas
 from schemaguard.core.schema_inspector import inspect_schema
 from schemaguard.models import (
@@ -51,7 +51,6 @@ from schemaguard.models import (
     InvariantResult,
     MigrationResult,
     SchemaDiffResult,
-    SchemaFinding,
     Severity,
 )
 from schemaguard.reports.json_report import export_json_report, generate_json_report
