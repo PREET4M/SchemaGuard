@@ -120,8 +120,12 @@ function RehearsalForm() {
       });
 
       if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.detail || "Upload validation failed.");
+        // Catch 502/503/504 from Render sleep mode
+        if (res.status === 502 || res.status === 503 || res.status === 504) {
+          throw new Error('Backend wakes up from sleep mode. Please wait 15 seconds and try again!');
+        }
+        const text = await res.text();
+        throw new Error(`Server returned status ${res.status}`);
       }
 
       const data = await res.json();
@@ -201,8 +205,12 @@ function RehearsalForm() {
       });
 
       if (!res.ok) {
-        const errJson = await res.json();
-        throw new Error(errJson.detail || "Rehearsal execution failed.");
+        // Catch 502/503/504 from Render sleep mode
+        if (res.status === 502 || res.status === 503 || res.status === 504) {
+          throw new Error('Backend wakes up from sleep mode. Please wait 15 seconds and try again!');
+        }
+        const text = await res.text();
+        throw new Error(`Server returned status ${res.status}`);
       }
 
       const report: RehearsalReport = await res.json();
