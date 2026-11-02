@@ -222,7 +222,11 @@ def health() -> dict[str, Any]:
 def get_demo_metadata() -> dict[str, Any]:
     """Retrieve demo database metadata, available tables, presets, contracts, and invariants."""
     if not DEMO_DB_PATH.exists():
-        raise HTTPException(status_code=404, detail="Demo database file not found. Run scripts/create_demo_db.py.")
+        try:
+            from scripts.create_demo_db import build_demo_db
+            build_demo_db(DEMO_DB_PATH)
+        except Exception as e:
+            raise HTTPException(status_code=404, detail=f"Demo database file not found and could not be created: {e}")
 
     # Inspect demo database tables safely in read-only mode
     tables_info = []
@@ -348,25 +352,37 @@ async def upload_database(file: UploadFile = File(...)) -> dict[str, Any]:
 class RehearsalRequest(BaseModel):
     source_type: str = Field(default="demo", description="'demo' or 'upload'")
     upload_id: str | None = Field(default=None, description="Upload identifier if source_type == 'upload'")
+    db_path: str | None = Field(default=None, description="Direct DB path or upload ID alias")
     migration_sql: str = Field(..., description="Migration SQL DDL statements")
     old_app_contracts: list[str] = Field(default_factory=list, description="Production query contracts")
+    old_contracts: list[str] = Field(default_factory=list, description="Alias for old_app_contracts")
     new_app_contracts: list[str] = Field(default_factory=list, description="Upcoming query contracts")
+    new_contracts: list[str] = Field(default_factory=list, description="Alias for new_app_contracts")
     invariants: list[str] = Field(default_factory=list, description="Zero-row data invariant queries")
 
 
 @app.post("/api/rehearse")
+@app.post("/api/run-rehearsal")
 def execute_rehearsal(req: RehearsalRequest) -> dict[str, Any]:
     """Execute isolated migration rehearsal against a disposable sandbox clone."""
+    effective_upload_id = req.upload_id or req.db_path
+    effective_old_contracts = req.old_app_contracts or req.old_contracts
+    effective_new_contracts = req.new_app_contracts or req.new_contracts
+
     # Resolve source database
     if req.source_type == "upload":
-        if not req.upload_id or req.upload_id not in UPLOADED_FILES:
+        if not effective_upload_id or effective_upload_id not in UPLOADED_FILES:
             raise HTTPException(status_code=400, detail="Invalid or expired upload ID. Please upload your database again.")
-        source_db_path = UPLOADED_FILES[req.upload_id]
+        source_db_path = UPLOADED_FILES[effective_upload_id]
         if not source_db_path.exists():
             raise HTTPException(status_code=400, detail="Uploaded database file no longer exists.")
     else:
         if not DEMO_DB_PATH.exists():
-            raise HTTPException(status_code=404, detail="Demo database file not found. Run scripts/create_demo_db.py.")
+            try:
+                from scripts.create_demo_db import build_demo_db
+                build_demo_db(DEMO_DB_PATH)
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Failed to initialize demo database: {e}")
         source_db_path = DEMO_DB_PATH
 
     if not req.migration_sql.strip():
@@ -376,8 +392,8 @@ def execute_rehearsal(req: RehearsalRequest) -> dict[str, Any]:
         report = rehearse_migration(
             source_db_path=source_db_path,
             migration_sql=req.migration_sql,
-            old_app_contracts=req.old_app_contracts,
-            new_app_contracts=req.new_app_contracts,
+            old_app_contracts=effective_old_contracts,
+            new_app_contracts=effective_new_contracts,
             invariants=req.invariants,
             max_file_size_mb=MAX_UPLOAD_SIZE_MB,
         )

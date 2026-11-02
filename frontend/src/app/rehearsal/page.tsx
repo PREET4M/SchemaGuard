@@ -22,6 +22,48 @@ import { DemoMetadata, RehearsalReport } from "@/types/schemaguard";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'https://schemaguard-nn79.onrender.com').replace(/\/$/, '');
 
+const FALLBACK_METADATA: DemoMetadata = {
+  database_name: "ecommerce.db",
+  database_path: "data/demo/ecommerce.db",
+  tables: [
+    { name: "users", row_count: 10 },
+    { name: "products", row_count: 5 },
+    { name: "orders", row_count: 12 },
+    { name: "order_items", row_count: 24 },
+  ],
+  scenarios: {
+    safe: {
+      key: "safe",
+      name: "Safe Column Addition (01_safe_add_column.sql)",
+      filename: "01_safe_add_column.sql",
+      description: "Adds 'phone' column to 'users' table.",
+      migration_sql: "ALTER TABLE users ADD COLUMN phone TEXT;",
+      severity: "LOW",
+    },
+    break_contract: {
+      key: "break_contract",
+      name: "Breaking Contract (02_break_old_query.sql)",
+      filename: "02_break_old_query.sql",
+      description: "Drops 'email' column from 'users'.",
+      migration_sql: "ALTER TABLE users DROP COLUMN email;",
+      severity: "CRITICAL",
+    },
+    drop_table: {
+      key: "drop_table",
+      name: "Destructive Table Drop (03_drop_table.sql)",
+      filename: "03_drop_table.sql",
+      description: "Drops 'order_items' table.",
+      migration_sql: "DROP TABLE order_items;",
+      severity: "HIGH",
+    },
+  },
+  default_contracts: {
+    old_app_sql: "-- Production app contracts\nSELECT id, name, email FROM users WHERE id = 1;\nSELECT id, total, status FROM orders WHERE user_id = 1;",
+    new_app_sql: "-- Upcoming app contracts\nSELECT id, name, phone FROM users WHERE id = 1;",
+  },
+  default_invariants_sql: "-- Invariants\nSELECT id FROM orders WHERE total < 0;\nSELECT oi.id FROM order_items oi LEFT JOIN orders o ON oi.order_id = o.id WHERE o.id IS NULL;",
+};
+
 function RehearsalForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -57,24 +99,29 @@ function RehearsalForm() {
     async function fetchMetadata() {
       try {
         setLoadingMeta(true);
-        const res = await fetch(`${API_BASE}/api/demo/metadata`);
-        if (res.ok) {
-          const data: DemoMetadata = await res.json();
-          setMetadata(data);
-
-          // Populate defaults
-          setOldContractsSql(data.default_contracts.old_app_sql);
-          setNewContractsSql(data.default_contracts.new_app_sql);
-          setInvariantsSql(data.default_invariants_sql);
-
-          if (scenarioParam && data.scenarios[scenarioParam as keyof typeof data.scenarios]) {
-            const sc = data.scenarios[scenarioParam as keyof typeof data.scenarios];
-            setPresetChoice(scenarioParam);
-            setMigrationSql(sc.migration_sql);
-          } else {
-            setPresetChoice("safe");
-            setMigrationSql(data.scenarios.safe.migration_sql);
+        let data: DemoMetadata = FALLBACK_METADATA;
+        try {
+          const res = await fetch(`${API_BASE}/api/demo/metadata`);
+          if (res.ok) {
+            data = await res.json();
           }
+        } catch {
+          // Fall back to default metadata
+        }
+        setMetadata(data);
+
+        // Populate defaults
+        setOldContractsSql(data.default_contracts.old_app_sql);
+        setNewContractsSql(data.default_contracts.new_app_sql);
+        setInvariantsSql(data.default_invariants_sql);
+
+        if (scenarioParam && data.scenarios[scenarioParam as keyof typeof data.scenarios]) {
+          const sc = data.scenarios[scenarioParam as keyof typeof data.scenarios];
+          setPresetChoice(scenarioParam);
+          setMigrationSql(sc.migration_sql);
+        } else {
+          setPresetChoice("safe");
+          setMigrationSql(data.scenarios.safe.migration_sql);
         }
       } catch (err) {
         console.error("Failed to load demo metadata:", err);
@@ -133,8 +180,28 @@ function RehearsalForm() {
         if (res.status === 502 || res.status === 503 || res.status === 504) {
           throw new Error('Backend wakes up from sleep mode. Please wait 15 seconds and try again!');
         }
-        const text = await res.text();
-        throw new Error(`Server returned status ${res.status}`);
+
+        let uploadErr = `Server returned status ${res.status}`;
+        try {
+          const errData = await res.json();
+          console.error("Upload error response (HTTP " + res.status + "):", errData);
+          if (errData && errData.detail) {
+            if (typeof errData.detail === "string") {
+              uploadErr = errData.detail;
+            } else if (Array.isArray(errData.detail)) {
+              uploadErr = errData.detail
+                .map((d: any) => (d.msg ? `${d.loc ? d.loc.slice(1).join(".") : "field"}: ${d.msg}` : JSON.stringify(d)))
+                .join("; ");
+            } else {
+              uploadErr = JSON.stringify(errData.detail);
+            }
+          }
+        } catch {
+          const rawText = await res.text().catch(() => "");
+          if (rawText) uploadErr = rawText;
+        }
+
+        throw new Error(uploadErr);
       }
 
       const data = await res.json();
@@ -200,9 +267,12 @@ function RehearsalForm() {
     const payload = {
       source_type: dbSourceType,
       upload_id: dbSourceType === "upload" ? uploadedFileId : null,
+      db_path: dbSourceType === "upload" ? uploadedFileId : "ecommerce.db",
       migration_sql: migrationSql,
       old_app_contracts: oldQueries,
+      old_contracts: oldQueries,
       new_app_contracts: newQueries,
+      new_contracts: newQueries,
       invariants: invariantList,
     };
 
@@ -218,8 +288,28 @@ function RehearsalForm() {
         if (res.status === 502 || res.status === 503 || res.status === 504) {
           throw new Error('Backend wakes up from sleep mode. Please wait 15 seconds and try again!');
         }
-        const text = await res.text();
-        throw new Error(`Server returned status ${res.status}`);
+
+        let rehearsalErr = `Server returned status ${res.status}`;
+        try {
+          const errData = await res.json();
+          console.error("Rehearsal execution error response (HTTP " + res.status + "):", errData);
+          if (errData && errData.detail) {
+            if (typeof errData.detail === "string") {
+              rehearsalErr = errData.detail;
+            } else if (Array.isArray(errData.detail)) {
+              rehearsalErr = errData.detail
+                .map((d: any) => (d.msg ? `${d.loc ? d.loc.slice(1).join(".") : "field"}: ${d.msg}` : JSON.stringify(d)))
+                .join("; ");
+            } else {
+              rehearsalErr = JSON.stringify(errData.detail);
+            }
+          }
+        } catch {
+          const rawText = await res.text().catch(() => "");
+          if (rawText) rehearsalErr = rawText;
+        }
+
+        throw new Error(rehearsalErr);
       }
 
       const report: RehearsalReport = await res.json();
