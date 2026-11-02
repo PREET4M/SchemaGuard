@@ -1,6 +1,8 @@
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
 streamlit
 pandas
 plotly
 sqlglot
 pytest
-
+python-multipart
