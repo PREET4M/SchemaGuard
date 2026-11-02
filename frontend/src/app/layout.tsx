@@ -15,8 +15,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full bg-[#F7F8FA]">
-      <body className="min-h-full flex flex-col bg-[#F7F8FA] text-[#171C26] antialiased selection:bg-[#2563EB]/15 selection:text-[#2563EB]">
+    <html lang="en" className="h-full bg-[#F7F8FA]" suppressHydrationWarning>
+      <body
+        className="min-h-full flex flex-col bg-[#F7F8FA] text-[#171C26] antialiased selection:bg-[#2563EB]/15 selection:text-[#2563EB]"
+        suppressHydrationWarning
+      >
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />

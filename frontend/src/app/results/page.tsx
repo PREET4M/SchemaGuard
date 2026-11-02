@@ -165,7 +165,7 @@ function ResultsContent() {
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Configuration</span>
         </Link>
-        <span className="text-xs font-mono text-[#929BA9]">
+        <span className="text-xs font-mono text-[#929BA9]" suppressHydrationWarning>
           ID: {report.rehearsal_id.slice(0, 8)} • {new Date(report.timestamp).toLocaleTimeString()}
         </span>
       </div>
@@ -661,3 +661,4 @@ export default function ResultsPage() {
     </Suspense>
   );
 }
+

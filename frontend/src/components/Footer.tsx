@@ -78,7 +78,7 @@ export default function Footer() {
 
         {/* Disclaimer & Copyright */}
         <div className="pt-8 border-t border-[#E5E9F0] flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#929BA9]">
-          <p>
+          <p suppressHydrationWarning>
             &copy; {new Date().getFullYear()} SchemaGuard. Engineered for deterministic schema reliability.
           </p>
           <p className="text-center md:text-right max-w-xl">
@@ -89,3 +89,4 @@ export default function Footer() {
     </footer>
   );
 }
+
