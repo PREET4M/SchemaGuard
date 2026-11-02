@@ -289,6 +289,7 @@ def get_demo_metadata() -> dict[str, Any]:
 
 
 @app.post("/api/upload-database")
+@app.post("/api/upload-db")
 async def upload_database(file: UploadFile = File(...)) -> dict[str, Any]:
     """Accept and validate custom SQLite database upload."""
     if not file.filename:

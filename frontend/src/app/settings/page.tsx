@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Shield, Lock, Settings as SettingsIcon, Terminal, CheckCircle2, ArrowLeft } from "lucide-react";
 import { SystemSettings } from "@/types/schemaguard";
 
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'https://schemaguard-nn79.onrender.com').replace(/\/$/, '');
+
 export default function SettingsPage() {
   const [settings, setSettings] = useState<SystemSettings | null>(null);
   const [loading, setLoading] = useState(true);
@@ -12,7 +14,7 @@ export default function SettingsPage() {
   useEffect(() => {
     async function fetchSettings() {
       try {
-        const res = await fetch("/api/settings");
+        const res = await fetch(`${API_BASE}/api/settings`);
         if (res.ok) {
           const data: SystemSettings = await res.json();
           setSettings(data);

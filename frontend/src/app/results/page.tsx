@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 import { RehearsalReport } from "@/types/schemaguard";
 
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'https://schemaguard-nn79.onrender.com').replace(/\/$/, '');
+
 function ResultsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -54,7 +56,7 @@ function ResultsContent() {
       if (rehearsalId) {
         try {
           setLoading(true);
-          const res = await fetch(`/api/rehearsals/${rehearsalId}`);
+          const res = await fetch(`${API_BASE}/api/rehearsals/${rehearsalId}`);
           if (res.ok) {
             const data: RehearsalReport = await res.json();
             setReport(data);
@@ -623,7 +625,7 @@ function ResultsContent() {
       <div className="mt-10 pt-6 border-t border-[#E5E9F0] flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <a
-            href={`/api/rehearsals/${report.rehearsal_id}/markdown`}
+            href={`${API_BASE}/api/rehearsals/${report.rehearsal_id}/markdown`}
             download
             className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold text-[#171C26] bg-[#FFFFFF] hover:bg-[#F1F4F8] border border-[#E5E9F0] rounded-lg shadow-sm transition-colors"
           >
@@ -631,7 +633,7 @@ function ResultsContent() {
             <span>Download Markdown</span>
           </a>
           <a
-            href={`/api/rehearsals/${report.rehearsal_id}/json`}
+            href={`${API_BASE}/api/rehearsals/${report.rehearsal_id}/json`}
             download
             className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold text-[#171C26] bg-[#FFFFFF] hover:bg-[#F1F4F8] border border-[#E5E9F0] rounded-lg shadow-sm transition-colors"
           >

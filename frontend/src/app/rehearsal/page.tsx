@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { DemoMetadata, RehearsalReport } from "@/types/schemaguard";
 
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'https://schemaguard-nn79.onrender.com').replace(/\/$/, '');
+
 function RehearsalForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -55,7 +57,7 @@ function RehearsalForm() {
     async function fetchMetadata() {
       try {
         setLoadingMeta(true);
-        const res = await fetch("/api/demo/metadata");
+        const res = await fetch(`${API_BASE}/api/demo/metadata`);
         if (res.ok) {
           const data: DemoMetadata = await res.json();
           setMetadata(data);
@@ -114,10 +116,17 @@ function RehearsalForm() {
     formData.append("file", file);
 
     try {
-      const res = await fetch("/api/upload-database", {
+      let res = await fetch(`${API_BASE}/api/upload-database`, {
         method: "POST",
         body: formData,
       });
+
+      if (res.status === 404) {
+        res = await fetch(`${API_BASE}/api/upload-db`, {
+          method: "POST",
+          body: formData,
+        });
+      }
 
       if (!res.ok) {
         // Catch 502/503/504 from Render sleep mode
@@ -198,7 +207,7 @@ function RehearsalForm() {
     };
 
     try {
-      const res = await fetch("/api/rehearse", {
+      const res = await fetch(`${API_BASE}/api/rehearse`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
