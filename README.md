@@ -322,29 +322,36 @@ Equal row counts do not prove that data is unchanged or correct.
   Database             SQLite
   Database interface   Python `sqlite3`
   SQL parsing          SQLGlot
-  Application UI       Streamlit
+  Frontend              Next.js 16, TypeScript
+  Styling               Tailwind CSS
+  Icons                 Lucide React
   Data processing      Pandas
   Charts               Plotly
   Testing              Pytest
   Version control      Git and GitHub
-  Demo hosting         Streamlit Community Cloud
+  Frontend hosting      Vercel
 
-The MVP uses a Python-first architecture. Streamlit provides the
-interface and calls Python service modules; there is no separate React
-frontend or FastAPI backend.
+The MVP uses a Next.js frontend built with TypeScript, Tailwind CSS and
+Lucide React icons. The frontend provides the user interface while the
+Python modules handle the database rehearsal and verification logic.
 
 ## Project architecture
 
 ``` text
 schemaguard/
-├── app.py
+├── frontend/
+│   ├── package.json
+│   ├── next.config.ts
+│   ├── tsconfig.json
+│   ├── src/
+│   │   ├── app/
+│   │   └── components/
+│   └── public/
 ├── requirements.txt
 ├── README.md
 ├── WORKFLOW.md
 ├── .gitignore
 ├── .python-version
-├── .streamlit/
-│   └── config.toml
 ├── assets/
 │   └── logo.svg
 ├── data/
@@ -373,16 +380,6 @@ schemaguard/
 │   └── utils/
 │       ├── sql_safety.py
 │       └── file_validation.py
-├── ui/
-│   ├── theme.py
-│   ├── components.py
-│   ├── pages/
-│   │   ├── overview.py
-│   │   ├── rehearsal.py
-│   │   ├── results.py
-│   │   └── settings.py
-│   └── styles/
-│       └── main.css
 └── tests/
     ├── conftest.py
     ├── test_analyzer.py
@@ -396,16 +393,17 @@ schemaguard/
 ```
 
 The exact files may evolve during implementation. Core migration and
-verification logic is kept separate from the Streamlit UI.
+verification logic is kept separate from the Next.js frontend.
 
 ## Getting started
 
 ### Prerequisites
 
+-   Node.js and npm
 -   Python 3.11 or 3.12
 -   Git
--   Windows, macOS or Linux environment capable of running Python and
-    SQLite
+-   Windows, macOS or Linux environment capable of running Node.js,
+    Python and SQLite
 
 ### Run locally
 
@@ -439,14 +437,16 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Launch the application:
+Install the frontend dependencies and launch the application:
 
 ``` bash
-streamlit run app.py
+cd frontend
+npm install
+npm run dev
 ```
 
 Open the local URL printed in the terminal (typically
-`http://localhost:8501`).
+`http://localhost:3000`).
 
 > These are the intended setup commands for the project. They assume the
 > corresponding application files and dependencies have been implemented
@@ -539,16 +539,13 @@ generated. Its acceptance criteria and tests must be run and verified.
 
 ## Deployment
 
-The planned demo deployment target is [Streamlit Community
-Cloud](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app).
+The frontend deployment target is [Vercel](https://vercel.com/).
 
-The application can be connected to its GitHub repository and deployed
-with `app.py` as its entry point.
-
-Community Cloud is intended for a hackathon demonstration, not durable
-database storage. Uploaded files and temporary data should be treated as
-ephemeral. Keep the demo database small and synthetic, and do not
-promise persistent rehearsal history.
+Connect the GitHub repository to Vercel and configure the project to use
+the `frontend` directory as its root directory. Uploaded files and
+temporary data should be treated according to the configured backend
+storage behaviour. Keep the demo database small and synthetic, and do
+not promise persistent rehearsal history.
 
 ## Current scope and limitations
 
@@ -565,7 +562,8 @@ The MVP deliberately focuses on a narrow, testable problem.
 -   Schema and selected data comparison
 -   Deterministic severity and evidence reporting
 -   JSON and Markdown report generation
--   Streamlit interface
+-   Next.js 16 frontend built with TypeScript
+-   Tailwind CSS styling and Lucide React icons
 
 **Not included in the MVP**
 
@@ -575,7 +573,7 @@ The MVP deliberately focuses on a narrow, testable problem.
 -   Automatic production deployment or rollback
 -   Automatic SQL repair
 -   AI chatbot or ML-based risk prediction
--   React frontend, FastAPI backend or authentication
+-   Authentication
 -   Billing, team collaboration or hosted run history
 -   GitHub Actions / CI integration
 
